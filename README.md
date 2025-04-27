@@ -29,13 +29,13 @@ README – Self‑Care PWA
 
 | Recurso               | Descrição                                                                                          |
 |-----------------------|----------------------------------------------------------------------------------------------------|
-| **Mood Tracker**      | Seleção de emojis com histórico e gráfico (Chart.js minificado).                                    |
-| **Diário Relâmpago**   | Campo de texto; análise de sentimento pela lambda `sentiment` (HuggingFace) com fallback local.     |
-| **Citações & Tradução**| Quote aleatória em inglês, traduzida a PT‑BR via lambda `translate` + cache local.                 |
-| **Dicas de Autocuidado** | Sugestões positivas, neutras ou negativas em JSON local e tagueadas.                              |
-| **Offline‑First**     | Service Worker cache‑first; datasets locais garantem funcionamento total sem internet.               |
-| **Serverless API**    | 3 funções Netlify (`quote`, `translate`, `sentiment`) — zero servidor próprio.                     |
-| **PWA**               | Manifesto, ícones 192 / 512 px e instalação "Add to Home Screen".                                   |
+| **Mood Tracker**      | Emojis interativos para registro de humor, histórico e gráfico (Chart.js minificado).              |
+| **Diário Relâmpago**  | Campo de texto para desabafar; análise de sentimento via Netlify Function (HuggingFace) com fallback local. |
+| **Citações & Tradução**| Quote aleatória em inglês, traduzida para PT‑BR via função `translate` + cache local.              |
+| **Dicas de Autocuidado** | Sugestões contextuais em JSON local, categorizadas (positivas, neutras, negativas).             |
+| **Offline‑First**     | Service Worker cache‑first; dados locais garantem uso integral sem internet.                       |
+| **Serverless API**    | 3 funções Netlify (`quote`, `translate`, `sentiment`) — sem servidor dedicado.                     |
+| **PWA**               | Manifesto web, ícones (192 / 512 px) e suporte “Add to Home Screen”.                                |
 
 ---
 
@@ -46,14 +46,14 @@ README – Self‑Care PWA
 ├─ src/                 # app estático (HTML, CSS, JS, manifest)
 │  ├─ assets/           # ícones PWA
 │  ├─ data/             # quotes.json / selfcare-tips.json
-│  ├─ serviceWorker.js
-│  └─ index.html        # PWA entrypoint
-├─ netlify/functions/   # λ serverless
-│  └─ {quote,translate,sentiment}.js
-├─ netlify.toml         # config deploy
-├─ package.json         # scripts + dependências dev
-└─ .github/workflows/   # ci.yml / codeql.yml / netlify.yml
-``` 
+│  ├─ serviceWorker.js  # script de cache e fetch
+│  └─ index.html        # página principal do PWA
+├─ netlify/functions/   # funções serverless
+│  └─ quote.js, translate.js, sentiment.js
+├─ netlify.toml         # configurações de deploy no Netlify
+├─ package.json         # scripts e dependências de desenvolvimento
+└─ .github/workflows/   # CI (ci.yml), CodeQL (codeql.yml) e Deploy (netlify.yml)
+```
 
 ---
 
@@ -62,40 +62,40 @@ README – Self‑Care PWA
 ### Pré‑requisitos
 
 * **Node ≥ 18**
-* **Netlify CLI** `npm i -g netlify-cli`
+* **Netlify CLI**: `npm i -g netlify-cli`
 
-### Clonar e rodar local
+### Clonar e rodar localmente
 
 ```bash
-# clone
+# clonar
 git clone https://github.com/prof-guifonseca/self-care.git
 cd self-care
 
-# instalar dependências (dev only)
+# instalar dependências de desenvolvimento
 npm ci
 
-# executar app + funções
+# executar app + funções serverless
 netlify dev --port 8888
 ```
 
-Acesse <http://localhost:8888>.
+Abra <http://localhost:8888> no navegador.
 
 ### Build estático
 
-Se precisar apenas dos arquivos estáticos:
+Se quiser apenas gerar arquivos para deploy estático:
 ```bash
 npm run build
-```
+``` 
 
 ---
 
 ## 🛠️ Scripts úteis
 
-| Comando           | O que faz                                     |
-|-------------------|-----------------------------------------------|
-| `npm run lint`    | ESLint + Prettier                             |
-| `npm test`        | _(futuro)_ Vitest                             |
-| `netlify build`   | Gera pasta `dist/` pronta para deploy         |
+| Comando           | Descrição                              |
+|-------------------|----------------------------------------|
+| `npm run lint`    | Executa ESLint + Prettier              |
+| `npm test`        | Rodar testes (Vitest)                  |
+| `netlify build`   | Gera pasta `dist/` para deploy         |
 
 ---
 
@@ -104,28 +104,29 @@ npm run build
 - [x] Emojis & histórico funcional            
 - [x] PWA instalável com ícones corretos      
 - [ ] Dark‑mode automático (`prefers-color-scheme`)  
-- [ ] Exportar histórico CSV                   
+- [ ] Exportar histórico em CSV                
 - [ ] Testes unitários (Vitest)                
 
 ---
 
 ## 🤝 Contribuindo
 
-1. Faça *fork* do projeto e crie sua branch: `git checkout -b feat/minha-feature`  
-2. `npm run lint && npm test`                                             
-3. *Commit* suas mudanças: `git commit -m "feat: minha feature"`          
-4. *Push* para o fork: `git push origin feat/minha-feature`                
-5. Abra *pull request* <sup>(template PR ajuda no passo‑a‑passo)</sup>       
+1. Faça *fork* e crie uma branch: `git checkout -b feat/nova-feature`
+2. Instale e verfique: `npm ci && npm run lint && npm test`
+3. Faça *commit*: `git commit -m "feat: descreva sua mudança"`
+4. Envie para o fork: `git push origin feat/nova-feature`
+5. Abra *Pull Request* usando template PR.
 
-Leia `CONTRIBUTING.md` para detalhes.
+Consulte `CONTRIBUTING.md` para obter diretrizes.
 
 ---
 
 ## 📝 Licença
 
-Distribuído sob **Licença ISC**. Consulte o arquivo [`LICENSE`](LICENSE) para mais informações.
+Este projeto está sob **Licença ISC**. Veja o arquivo [`LICENSE`](LICENSE) para detalhes.
 
 ---
 
-> Feito com ☕ + 💙 por **@prof‑guifonseca**  
+> Feito com ☕ + 💙 por **@prof‑guifonseca**
+> 
 > “Respire fundo, escreva três coisas boas de hoje e siga em frente.”
