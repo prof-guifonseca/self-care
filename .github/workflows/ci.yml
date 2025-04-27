@@ -2,11 +2,9 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build-and-test:
@@ -14,6 +12,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20.x]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,13 +26,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint code (ESLint + Prettier)
+      - name: Lint code (Prettier)
         run: npm run lint
 
-      - name: Run tests (Vitest/Jest)
+      - name: Run tests (placeholder)
         run: npm test
 
-      - name: Build static assets
-        run: npm run build
-        env:
-          NODE_ENV: production
+      - name: Build static assets via Netlify CLI
+        run: npx netlify build --context production
