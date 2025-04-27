@@ -9,10 +9,9 @@
 
 /*—— Paleta de Cores ——————————————————————————*/
 :root {
-  /* Light */
-  --bg-grad:    linear-gradient(180deg,#F9FBFF 0%,#EDEFF7 100%);
   --bg:         #F6F9FF;
-  --card:       #FFF;
+  --bg-grad:    linear-gradient(180deg,#F9FBFF 0%,#EDEFF7 100%);
+  --card:       #FFFFFF;
   --primary:    #4D6FE4;
   --primary-2:  #2744A6;
   --accent:     #F3DFA8;
@@ -25,28 +24,36 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-grad:    linear-gradient(180deg,#1B1E24 0%,#111418 80%);
     --bg:         #111418;
+    --bg-grad:    linear-gradient(180deg,#1B1E24 0%,#111418 80%);
     --card:       #1C1F25;
     --text:       #E6E9EF;
     --muted:      #9CA3AF;
-    --accent-2:   #282D34;
     --accent:     #39404A;
+    --accent-2:   #282D34;
     --shadow:     0 4px 12px rgba(0,0,0,.55);
     --shadow-2:   0 6px 20px rgba(0,0,0,.6);
   }
 }
 
 /*—— Reset & Base —————————————————————————————*/
-*,
-*::before,
-*::after { box-sizing: border-box; margin:0; padding:0; }
-html { scroll-behavior: smooth; }
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html {
+  scroll-behavior: smooth;
+}
 body {
-  min-height:100vh;
-  display:flex; flex-direction:column; align-items:center;
-  padding:2rem 1rem 4rem;
-  background: var(--bg-grad);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem 4rem;
+  background-color: var(--bg);
+  background-image: var(--bg-grad);
+  background-size: cover;
   color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -55,13 +62,18 @@ body {
 
 /*—— Layout ————————————————————————————————————*/
 main {
-  width:100%; max-width:420px;
-  display:flex; flex-direction:column; gap:1.5rem;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 .app-header h1 {
-  font-size: clamp(1.75rem,2.4vw + 1rem,2.25rem);
-  font-weight:600; color: var(--primary-2);
-  text-align:center; margin-bottom:2rem;
+  font-size: clamp(1.75rem, 2.4vw + 1rem, 2.25rem);
+  font-weight: 600;
+  color: var(--primary-2);
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 /*—— Cartões ————————————————————————————————————*/
@@ -69,8 +81,10 @@ main {
   background: var(--card);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding:1.75rem 2rem;
-  display:flex; flex-direction:column; gap:1.25rem;
+  padding: 1.75rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
   transition: box-shadow .25s, transform .25s;
 }
 .card:hover {
@@ -78,45 +92,73 @@ main {
   transform: translateY(-2px);
 }
 .card h2 {
-  font-size:1.25rem; font-weight:600; color: var(--primary-2);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-2);
 }
 
 /*—— Mood Picker —————————————————————————————*/
 .mood-picker {
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(60px,1fr));
-  gap:1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 1rem;
 }
 .mood {
-  font-size:2rem; line-height:1;
-  padding:.75rem; border:none; border-radius:50%;
+  font-size: 2rem;
+  line-height: 1;
+  padding: .75rem;
   background: var(--accent-2);
+  border: none;
+  border-radius: 50%;
   box-shadow: var(--shadow);
-  cursor:pointer;
+  cursor: pointer;
   transition: transform .15s, background-color .3s;
 }
 .mood:hover,
 .mood:focus-visible {
   background: var(--accent);
   transform: translateY(-4px);
-  outline:none;
+  outline: none;
 }
-.mood:active { transform: scale(.95); }
+.mood:active {
+  transform: scale(.95);
+}
 .mood[aria-pressed="true"] {
   background: var(--primary);
   color: #fff;
+}
+
+/*—— Botão Primário ———————————————————————————*/
+.btn {
+  padding: .75rem 1.25rem;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: background .2s, transform .1s;
+}
+.btn:hover {
+  background: var(--primary-2);
+  transform: translateY(-1px);
+}
+.btn:active {
+  transform: scale(.98);
 }
 
 /*—— Inputs & Textarea ————————————————————————*/
 textarea,
 input[type="text"],
 input[type="search"] {
-  width:100%;
-  padding:.75rem 1rem;
+  width: 100%;
+  padding: .75rem 1rem;
   background: var(--accent-2);
-  border:2px solid transparent;
+  border: 2px solid transparent;
   border-radius: calc(var(--radius) - .25rem);
-  font-size:1rem; color: var(--text);
+  font-size: 1rem;
+  color: var(--text);
   transition: border-color .25s, background .25s;
   resize: vertical;
 }
@@ -129,72 +171,89 @@ input:focus {
 
 /*—— Feedback & Citações ——————————————————————*/
 .suggestion {
-  font-size:.95rem; color: var(--muted);
-  opacity:1; transition: opacity .3s;
+  font-size: .95rem;
+  color: var(--muted);
+  opacity: 1;
+  transition: opacity .3s;
 }
 .quote {
-  margin-top:1rem;
-  padding:1rem 1.5rem;
-  border-left:4px solid var(--primary);
+  margin-top: 1rem;
+  padding: 1rem 1.5rem;
+  border-left: 4px solid var(--primary);
   background: var(--card);
   font-style: italic;
   box-shadow: var(--shadow);
   border-radius: var(--radius);
 }
 .quote footer {
-  display:block; margin-top:.5rem;
-  text-align:right; font-weight:600;
+  margin-top: .5rem;
+  text-align: right;
+  font-weight: 600;
 }
-.hidden { display:none !important; opacity:0; }
+.hidden {
+  display: none !important;
+  opacity: 0;
+}
 
 /*—— Histórico —————————————————————————————————*/
 #history-list {
-  list-style:none;
-  display:flex; flex-direction:column; gap:.5rem;
-  max-height:14rem; overflow-y:auto; padding-right:.25rem;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  max-height: 14rem;
+  overflow-y: auto;
+  padding-right: .25rem;
 }
 #history-list li {
   background: var(--accent-2);
-  padding:.5rem .75rem;
-  border-radius:.5rem;
+  padding: .5rem .75rem;
+  border-radius: .5rem;
   box-shadow: var(--shadow);
-  font-size:.875rem;
-  display:flex; justify-content:space-between;
+  font-size: .875rem;
+  display: flex;
+  justify-content: space-between;
 }
 #history-list li span:last-child {
-  font-size:.75rem; color: var(--muted);
+  font-size: .75rem;
+  color: var(--muted);
 }
 /* Scrollbar WebKit */
-#history-list::-webkit-scrollbar { width:6px; }
+#history-list::-webkit-scrollbar { width: 6px; }
 #history-list::-webkit-scrollbar-thumb {
-  background: var(--accent); border-radius:3px;
+  background: var(--accent);
+  border-radius: 3px;
 }
 
 /*—— Chart ————————————————————————————————————*/
 canvas#moodChart {
-  width:100% !important;
-  height:200px !important;
-  background:none;
+  width: 100% !important;
+  height: 200px !important;
+  background: none;
 }
 
 /*—— Utilitários ——————————————————————————————*/
 .visually-hidden {
-  position:absolute !important;
-  width:1px; height:1px;
-  margin:-1px; padding:0; border:0;
-  overflow:hidden; clip:rect(0,0,0,0);
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
   clip-path: inset(50%);
 }
 .fade-in {
   animation: fadeIn .4s ease forwards;
 }
 @keyframes fadeIn {
-  from { opacity:0; transform: translateY(6px); }
-  to   { opacity:1; transform: none; }
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
 }
 
 /*—— Responsivo ———————————————————————————————*/
-@media (min-width:840px) {
-  .card { padding:2.25rem 2.5rem; }
-  .app-header h1 { font-size:2.5rem; }
+@media (min-width: 840px) {
+  .card { padding: 2.25rem 2.5rem; }
+  .app-header h1 { font-size: 2.5rem; }
 }
