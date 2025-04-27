@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Lint (ESLint+Prettier); ajuste se o script tiver outro nome
+      - run: npm run lint
+
+      # Build estático se precisar (respeita netlify.toml)
+      - run: npx netlify build --context production
+        env:
+          NODE_ENV: production
+
+      # Tests (Vitest/Jest) – descomente quando adicionar
+      # - run: npm test
