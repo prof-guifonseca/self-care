@@ -1,215 +1,200 @@
-/* SelfCare – Calm & Harmonious Theme (2025-04-27)
-   ------------------------------------------------
-   ▸ Tons suaves de azul e areia
-   ▸ Tipografia “Inter” para alta legibilidade
-   ▸ Micro-animações & sombras discretas
-   ▸ Dark-mode automático (prefers-color-scheme)
-*/
+/*==================================================
+  SelfCare – Calm & Harmonious Theme (v1.0, 2025-04-27)
+  • Tons suaves de azul e areia
+  • Tipografia “Inter”
+  • Micro-animações & sombras discretas
+  • Dark-mode automático
+==================================================*/
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* -------- Paleta -------- */
-:root{
-  /* Claro */
-  --bg:            #F6F9FF;
-  --bg-grad:       linear-gradient(180deg,#F9FBFF 0%,#EDEFF7 100%);
-  --card:          #FFFFFF;
-  --primary:       #4D6FE4;   /* azul serenidade */
-  --primary-dark:  #2744A6;
-  --accent:        #F3DFA8;   /* areia mindfulness */
-  --accent-soft:   #FAF5E5;
-  --text:          #2F3545;
-  --muted:         #6F7785;
-
-  /* UI */
-  --radius: 1rem;
-  --shadow:        0 4px 12px rgba(0,0,0,.05);
-  --shadow-hover:  0 6px 16px rgba(0,0,0,.06);
+/*—— Paleta de Cores ——————————————————————————*/
+:root {
+  /* Light */
+  --bg-grad:    linear-gradient(180deg,#F9FBFF 0%,#EDEFF7 100%);
+  --bg:         #F6F9FF;
+  --card:       #FFF;
+  --primary:    #4D6FE4;
+  --primary-2:  #2744A6;
+  --accent:     #F3DFA8;
+  --accent-2:   #FAF5E5;
+  --text:       #2F3545;
+  --muted:      #6F7785;
+  --radius:     1rem;
+  --shadow:     0 4px 12px rgba(0,0,0,.05);
+  --shadow-2:   0 6px 16px rgba(0,0,0,.06);
 }
-
-/* Dark-mode */
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:            #111418;
-    --bg-grad:       linear-gradient(180deg,#1B1E24 0%,#111418 80%);
-    --card:          #1C1F25;
-    --text:          #E6E9EF;
-    --muted:         #9CA3AF;
-    --accent-soft:   #282D34;
-    --accent:        #39404A;
-    --shadow:        0 4px 12px rgba(0,0,0,.55);
-    --shadow-hover:  0 6px 20px rgba(0,0,0,.6);
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-grad:    linear-gradient(180deg,#1B1E24 0%,#111418 80%);
+    --bg:         #111418;
+    --card:       #1C1F25;
+    --text:       #E6E9EF;
+    --muted:      #9CA3AF;
+    --accent-2:   #282D34;
+    --accent:     #39404A;
+    --shadow:     0 4px 12px rgba(0,0,0,.55);
+    --shadow-2:   0 6px 20px rgba(0,0,0,.6);
   }
 }
 
-/* -------- Reset / Base -------- */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{
+/*—— Reset & Base —————————————————————————————*/
+*,
+*::before,
+*::after { box-sizing: border-box; margin:0; padding:0; }
+html { scroll-behavior: smooth; }
+body {
   min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-start;
-  background:var(--bg-grad);
-  color:var(--text);
-  font-family:'Inter',system-ui,sans-serif;
-  -webkit-font-smoothing:antialiased;
-  line-height:1.6;
+  display:flex; flex-direction:column; align-items:center;
   padding:2rem 1rem 4rem;
+  background: var(--bg-grad);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
 }
 
-/* -------- Layout -------- */
-main{
-  width:100%;
-  max-width:420px;
-  display:flex;
-  flex-direction:column;
-  gap:1.5rem;
+/*—— Layout ————————————————————————————————————*/
+main {
+  width:100%; max-width:420px;
+  display:flex; flex-direction:column; gap:1.5rem;
+}
+.app-header h1 {
+  font-size: clamp(1.75rem,2.4vw + 1rem,2.25rem);
+  font-weight:600; color: var(--primary-2);
+  text-align:center; margin-bottom:2rem;
 }
 
-.app-header h1{
-  font-size:clamp(1.75rem,2.4vw + 1rem,2.25rem);
-  font-weight:600;
-  text-align:center;
-  margin-bottom:2rem;
-  color:var(--primary-dark);
-}
-
-/* -------- Card -------- */
-.card{
-  background:var(--card);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
+/*—— Cartões ————————————————————————————————————*/
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
   padding:1.75rem 2rem;
-  display:flex;
-  flex-direction:column;
-  gap:1.25rem;
-  transition:box-shadow .25s ease,transform .25s ease;
+  display:flex; flex-direction:column; gap:1.25rem;
+  transition: box-shadow .25s, transform .25s;
 }
-.card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px);}
-.card h2{
-  font-size:1.25rem;
-  font-weight:600;
-  margin-bottom:.25rem;
-  color:var(--primary-dark);
+.card:hover {
+  box-shadow: var(--shadow-2);
+  transform: translateY(-2px);
+}
+.card h2 {
+  font-size:1.25rem; font-weight:600; color: var(--primary-2);
 }
 
-/* -------- Mood picker -------- */
-.mood-picker{          /* substitui antigo .mood-grid para coincidir com HTML */
+/*—— Mood Picker —————————————————————————————*/
+.mood-picker {
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(60px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(60px,1fr));
   gap:1rem;
 }
-.mood{
-  font-size:2rem;
-  line-height:1;
-  padding:.75rem;
-  border:none;
-  border-radius:50%;
-  background:var(--accent-soft);
+.mood {
+  font-size:2rem; line-height:1;
+  padding:.75rem; border:none; border-radius:50%;
+  background: var(--accent-2);
+  box-shadow: var(--shadow);
   cursor:pointer;
-  transition:transform .15s ease,background-color .3s ease;
-  box-shadow:var(--shadow);
+  transition: transform .15s, background-color .3s;
 }
 .mood:hover,
-.mood:focus-visible{
-  background:var(--accent);
-  transform:translateY(-4px);
+.mood:focus-visible {
+  background: var(--accent);
+  transform: translateY(-4px);
   outline:none;
 }
-.mood:active{transform:scale(.95);}
-.mood[aria-pressed="true"]{
-  background:var(--primary);
-  color:#fff;
+.mood:active { transform: scale(.95); }
+.mood[aria-pressed="true"] {
+  background: var(--primary);
+  color: #fff;
 }
 
-/* -------- Inputs -------- */
+/*—— Inputs & Textarea ————————————————————————*/
 textarea,
 input[type="text"],
-input[type="search"]{
+input[type="search"] {
   width:100%;
-  font-size:1rem;
   padding:.75rem 1rem;
+  background: var(--accent-2);
   border:2px solid transparent;
-  border-radius:calc(var(--radius) - .25rem);
-  background:var(--accent-soft);
-  transition:border-color .25s ease,background-color .25s ease;
-  color:var(--text);
-  resize:vertical;
+  border-radius: calc(var(--radius) - .25rem);
+  font-size:1rem; color: var(--text);
+  transition: border-color .25s, background .25s;
+  resize: vertical;
 }
 textarea:focus,
-input:focus{
-  border-color:var(--primary);
-  background:#fff;
-  outline:none;
+input:focus {
+  background: #fff;
+  border-color: var(--primary);
+  outline: none;
 }
 
-/* -------- Feedback & citações -------- */
-.suggestion{
-  font-size:.95rem;
-  color:var(--muted);
-  transition:opacity .3s ease;
+/*—— Feedback & Citações ——————————————————————*/
+.suggestion {
+  font-size:.95rem; color: var(--muted);
+  opacity:1; transition: opacity .3s;
 }
-.quote{                       /* NOVO bloco de citação */
+.quote {
   margin-top:1rem;
   padding:1rem 1.5rem;
   border-left:4px solid var(--primary);
-  background:var(--card);
-  font-style:italic;
-  box-shadow:var(--shadow);
-  border-radius:var(--radius);
+  background: var(--card);
+  font-style: italic;
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
 }
-.quote footer{
-  font-weight:600;
-  margin-top:.5rem;
-  text-align:right;
+.quote footer {
+  display:block; margin-top:.5rem;
+  text-align:right; font-weight:600;
 }
-.hidden{display:none !important;opacity:0;}
+.hidden { display:none !important; opacity:0; }
 
-/* -------- History -------- */
-#history-list{
+/*—— Histórico —————————————————————————————————*/
+#history-list {
   list-style:none;
-  display:flex;
-  flex-direction:column;
-  gap:.5rem;
-  max-height:14rem;
-  overflow-y:auto;
-  padding-right:.25rem;
+  display:flex; flex-direction:column; gap:.5rem;
+  max-height:14rem; overflow-y:auto; padding-right:.25rem;
 }
-#history-list li{
-  background:var(--accent-soft);
-  border-radius:.5rem;
+#history-list li {
+  background: var(--accent-2);
   padding:.5rem .75rem;
+  border-radius:.5rem;
+  box-shadow: var(--shadow);
   font-size:.875rem;
-  box-shadow:var(--shadow);
+  display:flex; justify-content:space-between;
 }
-#history-list li span:last-child{
-  font-size:.75rem;
-  color:var(--muted);
+#history-list li span:last-child {
+  font-size:.75rem; color: var(--muted);
 }
-
-/* Scrollbar (webkit) */
-#history-list::-webkit-scrollbar{width:6px;}
-#history-list::-webkit-scrollbar-track{background:transparent;}
-#history-list::-webkit-scrollbar-thumb{
-  background:var(--accent);
-  border-radius:3px;
+/* Scrollbar WebKit */
+#history-list::-webkit-scrollbar { width:6px; }
+#history-list::-webkit-scrollbar-thumb {
+  background: var(--accent); border-radius:3px;
 }
 
-/* -------- Chart -------- */
-canvas#moodChart{
+/*—— Chart ————————————————————————————————————*/
+canvas#moodChart {
   width:100% !important;
   height:200px !important;
   background:none;
 }
 
-/* -------- Utilidades -------- */
-.visually-hidden{position:absolute!important;width:1px;height:1px;margin:-1px;border:0;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);}
-.fade-in{animation:fadeIn .4s ease forwards;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+/*—— Utilitários ——————————————————————————————*/
+.visually-hidden {
+  position:absolute !important;
+  width:1px; height:1px;
+  margin:-1px; padding:0; border:0;
+  overflow:hidden; clip:rect(0,0,0,0);
+  clip-path: inset(50%);
+}
+.fade-in {
+  animation: fadeIn .4s ease forwards;
+}
+@keyframes fadeIn {
+  from { opacity:0; transform: translateY(6px); }
+  to   { opacity:1; transform: none; }
+}
 
-/* -------- Responsivo -------- */
-@media (min-width:840px){
-  .card{padding:2.25rem 2.5rem;}
-  .app-header h1{font-size:2.5rem;}
+/*—— Responsivo ———————————————————————————————*/
+@media (min-width:840px) {
+  .card { padding:2.25rem 2.5rem; }
+  .app-header h1 { font-size:2.5rem; }
 }
