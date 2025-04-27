@@ -1,24 +1,27 @@
 {
   "name": "self-care",
   "version": "1.0.0",
-  "description": "SelfCare PWA • Check-in de humor, dicas e citações (Functions + Offline)",
+  "description": "Self-Care PWA • Check-in de humor, dicas e citações (Functions + Offline)",
   "type": "module",
-  "author": "NCS",
+  "author": "Guilherme Fonseca",
   "license": "ISC",
-
+  "keywords": [
+    "self-care",
+    "PWA",
+    "Netlify",
+    "JavaScript",
+    "offline-first"
+  ],
   "scripts": {
-    "dev":   "netlify dev --port 8888",
+    "dev": "netlify dev --port 8888",
     "start": "serve -s src",
-    "lint":  "prettier --check \"**/*.{js,html,css,json}\"",
+    "lint": "prettier --check \"**/*.{js,html,css,json}\"",
     "format": "prettier --write \"**/*.{js,html,css,json}\"",
-    "test":  "echo \"(tests pendentes)\""
+    "test": "echo \"(tests pendentes)\""
   },
-
-  "keywords": ["self-care", "PWA", "Netlify", "JavaScript"],
-
   "devDependencies": {
-    "netlify-cli": "^17.22.0",
-    "prettier": "^3.3.1",
+    "netlify-cli": "^17.38.1",
+    "prettier": "^3.5.3",
     "serve": "^14.2.4"
   }
 }
