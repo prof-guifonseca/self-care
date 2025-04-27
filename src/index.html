@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#4D6FE4">
   <title>SelfCare • Check‑in Diário</title>
 
@@ -29,12 +29,8 @@
       <textarea id="entry" rows="4" placeholder="Escreva algo rápido..."></textarea>
       <button id="saveEntry" class="btn">Salvar e receber feedback</button>
 
-      <p id="autoFeedback" class="suggestion hidden"></p>
-
-      <blockquote id="quoteBox" class="quote hidden">
-        <p id="quoteText"></p>
-        <footer id="quoteAuthor"></footer>
-      </blockquote>
+      <!-- Sugestão unificada -->
+      <article id="suggestion" class="suggestion-card" aria-live="polite"></article>
     </section>
 
     <!-- Check‑in de Humor -->
@@ -60,9 +56,8 @@
   <!-- Registro do Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('serviceWorker.js').then(reg => {
-        if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
-      });
+      navigator.serviceWorker.register('serviceWorker.js')
+        .then(reg => reg.waiting && reg.waiting.postMessage('SKIP_WAITING'));
     }
   </script>
 </body>
