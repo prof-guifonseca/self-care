@@ -4,39 +4,38 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#4D6FE4">
-  <title>SelfCare • Check‑in Diário</title>
+  <title data-i18n="pageTitle">SelfCare • Check‑in Diário</title>
 
-  <!-- Styles & PWA Manifest -->
+  <!-- Estilos e Manifest PWA -->
   <link rel="stylesheet" href="assets/styles.css">
   <link rel="manifest" href="manifest.webmanifest">
 
-  <!-- Bibliotecas -->
-  <script src="https://cdn.jsdelivr.net/npm/sentiment@5.1.1/build/browser/esm.min.js" defer></script>
+  <!-- Biblioteca de Gráficos -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 
-  <!-- Script principal -->
+  <!-- Script Principal -->
   <script src="script.js" defer></script>
 </head>
 <body>
   <header class="app-header">
-    <h1>Como você está se sentindo hoje?</h1>
+    <h1 data-i18n="appHeader"></h1>
   </header>
 
   <main>
-    <!-- Diário rápido -->
+    <!-- Seção de Diário -->
     <section id="journal" class="card">
-      <h2>Diário Relâmpago</h2>
-      <textarea id="entry" rows="4" placeholder="Escreva algo rápido..."></textarea>
-      <button id="saveEntry" class="btn">Salvar e receber feedback</button>
+      <h2 data-i18n="journalHeader"></h2>
+      <textarea id="entry" rows="4" data-i18n-placeholder="placeholderEntry"></textarea>
+      <button id="saveEntry" class="btn" data-i18n="btnSave"></button>
 
-      <!-- Sugestão unificada -->
-      <article id="suggestion" class="suggestion-card" aria-live="polite"></article>
+      <!-- Feedback Unificado -->
+      <article id="suggestion" class="suggestion-card hidden" aria-live="polite" data-i18n-aria-label="feedbackAria"></article>
     </section>
 
-    <!-- Check‑in de Humor -->
+    <!-- Seção de Humor -->
     <section id="checkin" class="card">
-      <h2>Registre seu Humor</h2>
-      <div class="mood-picker" aria-label="Seleção de humor">
+      <h2 data-i18n="checkinHeader"></h2>
+      <div class="mood-picker" data-i18n-aria-label="moodLabel">
         <button class="mood" data-mood="😃" aria-label="Muito feliz">😃</button>
         <button class="mood" data-mood="🙂" aria-label="Feliz">🙂</button>
         <button class="mood" data-mood="😐" aria-label="Neutro">😐</button>
@@ -47,7 +46,7 @@
 
     <!-- Histórico e Gráfico -->
     <section id="history" class="card">
-      <h2>Últimos Check‑ins</h2>
+      <h2 data-i18n="historyHeader"></h2>
       <ul id="history-list" aria-live="polite"></ul>
       <canvas id="moodChart" height="160"></canvas>
     </section>
