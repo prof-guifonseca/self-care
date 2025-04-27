@@ -3,17 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#4D6FE4">
   <title>SelfCare • Check‑in Diário</title>
 
-  <!-- Styles & Manifest -->
+  <!-- Styles & PWA Manifest -->
   <link rel="stylesheet" href="assets/styles.css">
   <link rel="manifest" href="manifest.webmanifest">
 
-  <!-- Libs (carregadas antes do app) -->
+  <!-- Bibliotecas -->
   <script src="https://cdn.jsdelivr.net/npm/sentiment@5.1.1/build/browser/esm.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 
-  <!-- Core app -->
+  <!-- Script principal -->
   <script src="script.js" defer></script>
 </head>
 <body>
@@ -22,42 +23,44 @@
   </header>
 
   <main>
-    <!-- Diário relâmpago -->
+    <!-- Diário rápido -->
     <section id="journal" class="card">
-      <h2>Diário rápido</h2>
+      <h2>Diário Relâmpago</h2>
       <textarea id="entry" rows="4" placeholder="Escreva algo rápido..."></textarea>
       <button id="saveEntry" class="btn">Salvar e receber feedback</button>
-  
+
       <p id="autoFeedback" class="suggestion hidden"></p>
-  
+
       <blockquote id="quoteBox" class="quote hidden">
         <p id="quoteText"></p>
         <footer id="quoteAuthor"></footer>
       </blockquote>
     </section>
-  </main>
-  
-<div id="mood-picker" class="moods">
-  <button class="mood" data-mood="😃" aria-label="Muito feliz">😃</button>
-  <button class="mood" data-mood="🙂" aria-label="Feliz">🙂</button>
-  <button class="mood" data-mood="😐" aria-label="Neutro">😐</button>
-  <button class="mood" data-mood="🙁" aria-label="Triste">🙁</button>
-  <button class="mood" data-mood="😢" aria-label="Muito triste">😢</button>
-</div>
 
-    <!-- Histórico + Gráfico -->
+    <!-- Check‑in de Humor -->
+    <section id="checkin" class="card">
+      <h2>Registre seu Humor</h2>
+      <div class="mood-picker" aria-label="Seleção de humor">
+        <button class="mood" data-mood="😃" aria-label="Muito feliz">😃</button>
+        <button class="mood" data-mood="🙂" aria-label="Feliz">🙂</button>
+        <button class="mood" data-mood="😐" aria-label="Neutro">😐</button>
+        <button class="mood" data-mood="🙁" aria-label="Triste">🙁</button>
+        <button class="mood" data-mood="😢" aria-label="Muito triste">😢</button>
+      </div>
+    </section>
+
+    <!-- Histórico e Gráfico -->
     <section id="history" class="card">
-      <h2>Últimos check‑ins</h2>
+      <h2>Últimos Check‑ins</h2>
       <ul id="history-list" aria-live="polite"></ul>
-      <canvas id="moodChart" height="160" style="margin-top:1rem"></canvas>
+      <canvas id="moodChart" height="160"></canvas>
     </section>
   </main>
 
-  <!-- Service Worker registration -->
+  <!-- Registro do Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('serviceWorker.js').then(reg => {
-        // força atualização imediata quando houver nova versão
         if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
       });
     }
