@@ -5,6 +5,14 @@
   "type": "module",
   "author": "Guilherme Fonseca",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/prof-guifonseca/self-care.git"
+  },
+  "bugs": {
+    "url": "https://github.com/prof-guifonseca/self-care/issues"
+  },
+  "homepage": "https://seu-site.netlify.app/#readme",
   "keywords": [
     "self-care",
     "PWA",
@@ -13,11 +21,15 @@
     "offline-first"
   ],
   "scripts": {
-    "dev": "netlify dev --port 8888",
+    "dev":   "netlify dev --port 8888",
+    "build": "npm run lint && npm test && netlify build --context production",
     "start": "serve -s src",
-    "lint": "prettier --check \"**/*.{js,html,css,json}\"",
-    "format": "prettier --write \"**/*.{js,html,css,json}\"",
-    "test": "echo \"(tests pendentes)\""
+    "lint":  "prettier --check \"**/*.{js,html,css,json}\"",
+    "format":"prettier --write \"**/*.{js,html,css,json}\"",
+    "test":  "echo \"(tests pendentes)\""
+  },
+  "engines": {
+    "node": ">=18 <22"
   },
   "devDependencies": {
     "netlify-cli": "^17.38.1",
