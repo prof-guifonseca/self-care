@@ -6,7 +6,7 @@ README – Self‑Care PWA
 <h1 align="center">🧘‍♂️ Self‑Care • Check‑in Diário</h1>
 
 <p align="center">
-  <a href="https://self-care-demo.netlify.app" target="_blank">Acessar&nbsp;[Demo](https://selfcare-checkin.netlify.app/)</a> ·
+  <a href="https://self-care-demo.netlify.app" target="_blank">Acessar&nbsp;https://selfcare-checkin.netlify.app/</a> ·
   <a href="#contribuindo">Contribuir</a> ·
   <a href="LICENSE">Licença&nbsp;ISC</a>
 </p>
