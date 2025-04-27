@@ -1,5 +1,5 @@
 /*==================================================
-  SelfCare – Calm & Harmonious Theme (v1.0, 2025-04-27)
+  SelfCare – Calm & Harmonious Theme (v1.1, 2025-04-27)
   • Tons suaves de azul e areia
   • Tipografia “Inter”
   • Micro-animações & sombras discretas
@@ -37,23 +37,15 @@
 }
 
 /*—— Reset & Base —————————————————————————————*/
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-html {
-  scroll-behavior: smooth;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 2rem 1rem 4rem;
-  background-color: var(--bg);
-  background-image: var(--bg-grad);
-  background-size: cover;
+  background: var(--bg) var(--bg-grad);
   color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -63,17 +55,33 @@ body {
 /*—— Layout ————————————————————————————————————*/
 main {
   width: 100%;
-  max-width: 420px;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 .app-header h1 {
-  font-size: clamp(1.75rem, 2.4vw + 1rem, 2.25rem);
+  font-size: clamp(1.75rem, 2.4vw + 1rem, 2.5rem);
   font-weight: 600;
   color: var(--primary-2);
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+}
+
+/*—— Separações entre seções —————————————————————*/
+.card + .card {
+  position: relative;
+}
+.card + .card::before {
+  content: '';
+  position: absolute;
+  top: -1rem;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  opacity: .5;
 }
 
 /*—— Cartões ————————————————————————————————————*/
@@ -81,18 +89,18 @@ main {
   background: var(--card);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 1.75rem 2rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
   transition: box-shadow .25s, transform .25s;
 }
 .card:hover {
   box-shadow: var(--shadow-2);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 .card h2 {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 600;
   color: var(--primary-2);
 }
@@ -100,12 +108,12 @@ main {
 /*—— Mood Picker —————————————————————————————*/
 .mood-picker {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(54px, 1fr));
+  justify-items: center;
   gap: 1rem;
 }
 .mood {
-  font-size: 2rem;
-  line-height: 1;
+  font-size: 1.75rem;
   padding: .75rem;
   background: var(--accent-2);
   border: none;
@@ -117,11 +125,11 @@ main {
 .mood:hover,
 .mood:focus-visible {
   background: var(--accent);
-  transform: translateY(-4px);
+  transform: translateY(-2px);
   outline: none;
 }
 .mood:active {
-  transform: scale(.95);
+  transform: scale(.92);
 }
 .mood[aria-pressed="true"] {
   background: var(--primary);
@@ -130,12 +138,14 @@ main {
 
 /*—— Botão Primário ———————————————————————————*/
 .btn {
-  padding: .75rem 1.25rem;
+  align-self: start;
+  padding: .75rem 1.5rem;
   background: var(--primary);
   color: #fff;
   border: none;
   border-radius: var(--radius);
   font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
   box-shadow: var(--shadow);
   transition: background .2s, transform .1s;
@@ -145,13 +155,12 @@ main {
   transform: translateY(-1px);
 }
 .btn:active {
-  transform: scale(.98);
+  transform: scale(.96);
 }
 
 /*—— Inputs & Textarea ————————————————————————*/
 textarea,
-input[type="text"],
-input[type="search"] {
+input {
   width: 100%;
   padding: .75rem 1rem;
   background: var(--accent-2);
@@ -169,30 +178,16 @@ input:focus {
   outline: none;
 }
 
-/*—— Feedback & Citações ——————————————————————*/
-.suggestion {
+/*—— Sugestão Unificada ————————————————————————*/
+.suggestion-card {
+  background: var(--accent-2);
+  border-left: 4px solid var(--primary);
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
   font-size: .95rem;
   color: var(--muted);
-  opacity: 1;
-  transition: opacity .3s;
-}
-.quote {
-  margin-top: 1rem;
-  padding: 1rem 1.5rem;
-  border-left: 4px solid var(--primary);
-  background: var(--card);
-  font-style: italic;
-  box-shadow: var(--shadow);
-  border-radius: var(--radius);
-}
-.quote footer {
-  margin-top: .5rem;
-  text-align: right;
-  font-weight: 600;
-}
-.hidden {
-  display: none !important;
-  opacity: 0;
+  animation: fadeIn .4s ease both;
 }
 
 /*—— Histórico —————————————————————————————————*/
@@ -200,7 +195,7 @@ input:focus {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: .5rem;
+  gap: .75rem;
   max-height: 14rem;
   overflow-y: auto;
   padding-right: .25rem;
@@ -218,6 +213,7 @@ input:focus {
   font-size: .75rem;
   color: var(--muted);
 }
+
 /* Scrollbar WebKit */
 #history-list::-webkit-scrollbar { width: 6px; }
 #history-list::-webkit-scrollbar-thumb {
@@ -225,28 +221,14 @@ input:focus {
   border-radius: 3px;
 }
 
-/*—— Chart ————————————————————————————————————*/
+/*—— Gráfico ————————————————————————————————————*/
 canvas#moodChart {
   width: 100% !important;
   height: 200px !important;
   background: none;
 }
 
-/*—— Utilitários ——————————————————————————————*/
-.visually-hidden {
-  position: absolute !important;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  border: 0;
-  overflow: hidden;
-  clip: rect(0,0,0,0);
-  clip-path: inset(50%);
-}
-.fade-in {
-  animation: fadeIn .4s ease forwards;
-}
+/*—— Animação ——————————————————————————————*/
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: none; }
@@ -254,6 +236,6 @@ canvas#moodChart {
 
 /*—— Responsivo ———————————————————————————————*/
 @media (min-width: 840px) {
-  .card { padding: 2.25rem 2.5rem; }
-  .app-header h1 { font-size: 2.5rem; }
+  .card { padding: 2.5rem; }
+  .app-header h1 { font-size: 2.75rem; }
 }
