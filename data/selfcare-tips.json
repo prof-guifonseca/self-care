@@ -1,22 +1,21 @@
 {
-    "positive": [
-      { "tip": "Escreva três coisas pelas quais você é grato hoje." },
-      { "tip": "Envie uma mensagem positiva a alguém querido." }
-    ],
-    "negative": [
-      { "tip": "Respire fundo por um minuto completo, focando no ar que entra e sai." },
-      { "tip": "Alongue o pescoço e ombros lentamente por 30 segundos." }
-    ],
-    "stress": [
-      { "tip": "Experimente a técnica 5-4-3-2-1 para aterrar-se no presente." },
-      { "tip": "Desligue as notificações do celular por 30 minutos." }
-    ],
-    "sleep": [
-      { "tip": "Reduza a intensidade das luzes 20 minutos antes de deitar." },
-      { "tip": "Faça cinco respirações profundas deitado antes de fechar os olhos." }
-    ],
-    "neutral": [
-      { "tip": "Caminhe por cinco minutos prestando atenção apenas à sua respiração." }
-    ]
-  }
-  
+  "positivo": [
+    { "tip": "Escreva três coisas pelas quais você é grato(a) hoje." },
+    { "tip": "Envie uma mensagem carinhosa para alguém querido." }
+  ],
+  "negativo": [
+    { "tip": "Respire fundo por um minuto completo, focando no ar que entra e sai." },
+    { "tip": "Alongue o pescoço e os ombros lentamente por 30 segundos." }
+  ],
+  "estresse": [
+    { "tip": "Experimente a técnica 5-4-3-2-1 para se ancorar no presente." },
+    { "tip": "Desative as notificações do celular por 30 minutos." }
+  ],
+  "sono": [
+    { "tip": "Reduza a intensidade das luzes 20 minutos antes de deitar." },
+    { "tip": "Faça cinco respirações profundas deitado antes de fechar os olhos." }
+  ],
+  "neutro": [
+    { "tip": "Caminhe por cinco minutos prestando atenção apenas à sua respiração." }
+  ]
+}
