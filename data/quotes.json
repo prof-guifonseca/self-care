@@ -1,0 +1,19 @@
+{
+    "positive": [
+      { "q": "A alegria não está nas coisas, mas em nós.", "a": "Richard Wagner" },
+      { "q": "A gratidão é a memória do coração.", "a": "Lao-Tsé" }
+    ],
+    "negative": [
+      { "q": "Mesmo a noite mais escura terminará e o sol nascerá.", "a": "Victor Hugo" },
+      { "q": "O que pensamos, nos tornamos.", "a": "Buda" }
+    ],
+    "stress": [
+      { "q": "A alma fica cansada antes que o corpo.", "a": "Sófocles" }
+    ],
+    "sleep": [
+      { "q": "O melhor colchão é a consciência tranquila.", "a": "Provérbio" }
+    ],
+    "neutral": [
+      { "q": "Conhece-te a ti mesmo.", "a": "Sócrates" }
+    ]
+  }  

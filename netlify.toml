@@ -1,0 +1,19 @@
+# netlify.toml — SelfCare MVP
+# -------------------------------------------------------------
+# • publish:       todos os arquivos estáticos vivem em /src
+# • functions:     código server-side em /netlify/functions
+# • node_bundler:  esbuild → suporte nativo a ES Modules
+# • redirect:      rotas amigáveis /api/* → Functions
+
+[build]
+  publish   = "src"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from   = "/api/*"
+  to     = "/.netlify/functions/:splat"
+  status = 200
+  force  = true   # garante que /api/* nunca seja servido do cache estático

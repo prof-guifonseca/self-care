@@ -1,0 +1,21 @@
+{
+  "name": "SelfCare Check-in",
+  "short_name": "SelfCare",
+  "description": "PWA de autocuidado: diário rápido, check-in de humor e dicas personalizadas, tudo offline.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F3F7FB",
+  "theme_color": "#4D7EF0",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
