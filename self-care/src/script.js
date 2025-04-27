@@ -15,12 +15,15 @@
 
   const API_SENTIMENT = '/api/sentiment';      // Function sentiment.js
   const API_QUOTE     = '/api/quote';          // Function quote.js (inglês)
-  const API_TRANSLATE = 'https://libretranslate.de/translate';   // 100 req/dia/IP
+  const API_TRANSLATE = '/api/translate';      // Function translate.js (server-side);   // 100 req/dia/IP
 
   /* === Datasets locais (carregados assíncrono) === */
   let taggedQuotes = {};                       // data/quotes.json
   let taggedTips   = {};                       // data/selfcare-tips.json
-
+   
+  /* === Cache simples de traduções === */
+const translateCache = JSON.parse(localStorage.getItem('sc_translate') || '{}');
+   
   /* === Fallbacks === */
   const LOCAL_QUOTES = [
     { q: 'A felicidade da sua vida depende da qualidade dos seus pensamentos.', a: 'Marco Aurélio' },
