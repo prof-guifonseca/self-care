@@ -1,5 +1,5 @@
-/* SelfCare – Core Script v0.7 (2025-04-27)
-   ▸ Citações correlacionadas + tradução PT-BR
+/* SelfCare – Core Script v0.8 (2025-04-27)
+   ▸ Citações correlacionadas + tradução PT-BR (com cache)
    ▸ Dicas de autocuidado correlacionadas (base local tagueada)
    ▸ Sentiment remoto (/api/sentiment) com fallback local
    ▸ 100 % offline se existir data/{quotes,selfcare-tips}.json
@@ -13,13 +13,13 @@
   const MAX_HISTORY   = 50;
   const DISPLAY_LIMIT = 7;
 
-  const API_SENTIMENT = '/api/sentiment';      // Function sentiment.js
-  const API_QUOTE     = '/api/quote';          // Function quote.js (inglês)
-  const API_TRANSLATE = 'https://libretranslate.de/translate';   // 100 req/dia/IP
+  const API_SENTIMENT = '/api/sentiment';       // Function sentiment.js
+  const API_QUOTE     = '/api/quote';           // Function quote.js (inglês)
+  const API_TRANSLATE = '/api/translate';       // Function translate.js (server-side)
 
   /* === Datasets locais (carregados assíncrono) === */
-  let taggedQuotes = {};                       // data/quotes.json
-  let taggedTips   = {};                       // data/selfcare-tips.json
+  let taggedQuotes = {};                        // data/quotes.json
+  let taggedTips   = {};                        // data/selfcare-tips.json
 
   /* === Fallbacks === */
   const LOCAL_QUOTES = [
@@ -59,22 +59,31 @@
   /* === Helpers === */
   const rand   = arr => arr[Math.floor(Math.random() * arr.length)];
   const format = ts  => new Date(ts)
-                         .toLocaleString('pt-BR',{ weekday:'short', hour:'2-digit', minute:'2-digit' });
+                         .toLocaleString('pt-BR', { weekday:'short', hour:'2-digit', minute:'2-digit' });
 
   const detectTopic = txt =>
     Object.keys(TOPICS).find(k => TOPICS[k].some(w => txt.toLowerCase().includes(w)));
 
-  /* === Tradução en→pt (best effort) === */
+  /* === Cache de traduções (localStorage) === */
+  const translateCache = JSON.parse(localStorage.getItem('sc_translate') || '{}');
+
+  /* === Tradução en→pt (com cache) === */
   async function translateToPT(text) {
+    if (translateCache[text]) return translateCache[text];            // 0 ms se já tiver
+
     try {
       const r = await fetch(API_TRANSLATE, {
         method : 'POST',
         headers: { 'Content-Type':'application/json' },
-        body   : JSON.stringify({ q: text, source:'en', target:'pt', format:'text' })
+        body   : JSON.stringify({ text })                              // campo “text”
       });
       if (!r.ok) throw 0;
+
       const { translatedText } = await r.json();
-      return translatedText || text;
+      translateCache[text] = translatedText || text;                   // salva cache
+      localStorage.setItem('sc_translate', JSON.stringify(translateCache));
+      return translateCache[text];
+
     } catch { return text; }
   }
 
@@ -87,19 +96,18 @@
     try {
       const r = await fetch(API_QUOTE);
       if (!r.ok) throw 0;
-      const obj = await r.json();          // { q, a } (inglês)
-      obj.q = await translateToPT(obj.q);
+
+      const obj = await r.json();          // { q, a } em inglês
+      obj.q = await translateToPT(obj.q);  // traduz
       return obj;
+
     } catch { return rand(LOCAL_QUOTES); }
   }
 
   /* === Dica de autocuidado correlacionada === */
   function getTip(label) {
-    /* 1. offline pool */
-    if (taggedTips[label]?.length) return rand(taggedTips[label]).tip;
-
-    /* 2. fallback fixo */
-    return rand(FALLBACK_TIPS[label] || FALLBACK_TIPS.neutral);
+    if (taggedTips[label]?.length) return rand(taggedTips[label]).tip;   // offline pool
+    return rand(FALLBACK_TIPS[label] || FALLBACK_TIPS.neutral);          // fallback fixo
   }
 
   /* === Sentiment remoto + fallback === */
@@ -111,8 +119,10 @@
         body   : JSON.stringify({ text })
       });
       if (!res.ok) throw 0;
+
       const [{ label = 'NEUTRAL' }] = await res.json();
       return label === 'NEGATIVE' ? -1 : label === 'POSITIVE' ? 1 : 0;
+
     } catch {
       return SentimentAnalyzer ? SentimentAnalyzer.analyze(text).score : 0;
     }
@@ -128,6 +138,7 @@
   const renderHistory = () => {
     const list = document.getElementById('history-list');
     if (!list) return;
+
     list.textContent = '';
     const h = JSON.parse(localStorage.getItem(STORAGE.history) || '[]');
     h.slice(0, DISPLAY_LIMIT).forEach(i => {
@@ -172,7 +183,7 @@
     /* salva nota local */
     const notes = JSON.parse(localStorage.getItem(STORAGE.notes) || '[]');
     notes.unshift({ text, time: Date.now() });
-    localStorage.setItem(STORAGE.notes, JSON.stringify(notes.slice(0,30)));
+    localStorage.setItem(STORAGE.notes, JSON.stringify(notes.slice(0, 30)));
 
     /* análise + outputs */
     const score   = await cloudScore(text);
@@ -205,9 +216,11 @@
 
       const sug = document.getElementById('suggestion');
       if (sug) {
-        const tip = getTip(mood === '😃' ? 'positive'
-                         : mood === '🙁' ? 'negative'
-                         : 'neutral');
+        const tip = getTip(
+          mood === '😃' ? 'positive' :
+          mood === '🙁' ? 'negative' :
+          'neutral'
+        );
         sug.textContent = tip;
         sug.classList.remove('hidden');
       }
