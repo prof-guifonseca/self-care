@@ -1,25 +1,21 @@
 /* serviceWorker.js • SelfCare PWA
    --------------------------------------------------
-   • Escopo: pasta /src  (publish raiz no Netlify)
-   • Estratégia:
-       – Assets estáticos → cache-first
-       – Chamadas /api/*   → network-first (cai p/ offline se falhar)
+   Estratégia:
+   • Assets estáticos → cache-first
+   • Chamadas /api/*   → network-first com fallback offline
 */
 
 const CACHE_NAME = 'selfcare-v1';
 const STATIC_ASSETS = [
-  './',                       // index.html
+  './',
   './assets/styles.css',
   './script.js',
   './manifest.webmanifest',
-  // ícones opcionalmente:
-  // './assets/icons/icon-192.png',
-  // './assets/icons/icon-512.png'
-
   './data/quotes.json',
-  './data/selfcare-tips.json',];
+  './data/selfcare-tips.json',
+];
 
-/* Instalação: guarda assets essenciais */
+/* Instala assets essenciais */
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
@@ -27,44 +23,43 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-/* Limpa caches antigos ao atualizar a SW */
+/* Remove caches antigos */
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))
     )
   );
   self.clients.claim();
 });
 
-/* Intercepta fetch */
+/* Intercepta requisições */
 self.addEventListener('fetch', event => {
   const { request } = event;
-
-  /* Deixa POST/PUT etc. passarem direto */
   if (request.method !== 'GET') return;
 
-  const isAPI = request.url.includes('/api/');
+  const isAPIRequest = request.url.includes('/api/');
 
-  /* Network-first para API; cache-first para estáticos */
   event.respondWith(
     (async () => {
-      if (isAPI) {
+      if (isAPIRequest) {
         try {
-          const netRes = await fetch(request.clone());
-          /* Opcional: guarda resposta em cache se ok */
-          if (netRes.ok) {
-            const apiCache = await caches.open(CACHE_NAME);
-            apiCache.put(request, netRes.clone());
+          const networkResponse = await fetch(request.clone());
+          if (networkResponse.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, networkResponse.clone());
           }
-          return netRes;
-        } catch (_) {
-          const cacheRes = await caches.match(request);
-          return cacheRes || new Response('{"error":"offline"}', { status: 503 });
+          return networkResponse;
+        } catch {
+          const cachedResponse = await caches.match(request);
+          return cachedResponse || new Response(JSON.stringify({ error: 'offline' }), {
+            headers: { 'Content-Type': 'application/json' },
+            status: 503,
+          });
         }
       } else {
-        const cacheRes = await caches.match(request);
-        return cacheRes || fetch(request);
+        const cachedResponse = await caches.match(request);
+        return cachedResponse || fetch(request);
       }
     })()
   );
