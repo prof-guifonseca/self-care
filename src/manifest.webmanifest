@@ -1,7 +1,7 @@
 {
-  "name": "SelfCare ✝️ Palavras de Esperança",
-  "short_name": "SelfCare ✝️",
-  "description": "Receba versículos e reflexões bíblicas para iluminar o seu dia. Um espaço de autocuidado espiritual.",
+  "name": "GodCares ✝️ Palavras de Esperança",
+  "short_name": "GodCares ✝️",
+  "description": "Receba versículos e reflexões bíblicas para iluminar o seu dia. Um espaço de cuidado espiritual diário.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#F6F9FF",
