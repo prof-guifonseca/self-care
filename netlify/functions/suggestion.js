@@ -1,5 +1,4 @@
-// netlify/functions/suggestion.js
-// SelfCare ✝️ — Gera Palavra Bíblica + Reflexão via OpenAI
+// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.1, 2025-04-28)
 
 import OpenAI from 'openai';
 
@@ -7,7 +6,6 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async (req, ctx) => {
   try {
-    // Lê o texto do usuário
     const { entryText } = await req.json();
     if (!entryText?.trim()) {
       return new Response(
@@ -16,17 +14,22 @@ export default async (req, ctx) => {
       );
     }
 
-    // Novo prompt para gerar Palavra Bíblica personalizada
+    // Prompt mais estruturado
     const prompt = `
-O usuário compartilhou o seguinte sentimento ou reflexão: "${entryText}"
+O usuário compartilhou: "${entryText}"
 
 Com base na Bíblia Sagrada:
-1. Escolha um versículo que melhor acolha essa situação (cite o livro, capítulo e versículo).
-2. Depois, escreva uma breve reflexão inspiradora em português, com no máximo 3 linhas, baseada nesse versículo.
+1. Selecione um versículo que traga acolhimento e sabedoria para essa situação (cite o Livro, Capítulo e Versículo).
+2. Em seguida, escreva dois pequenos parágrafos de reflexão contextualizada:
+   - O primeiro parágrafo deve explicar o contexto bíblico do versículo.
+   - O segundo parágrafo deve trazer uma aplicação prática e encorajadora para a realidade emocional ou espiritual da pessoa.
 
-Formato da resposta:
+⚡ Formato esperado:
 Versículo: "Texto do versículo" (Livro Capítulo:Versículo)
-Reflexão: Texto da reflexão
+
+Contexto: (primeiro parágrafo)
+
+Aplicação: (segundo parágrafo)
 `.trim();
 
     // Chamada à OpenAI
@@ -34,26 +37,28 @@ Reflexão: Texto da reflexão
       model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
-      max_tokens: 300,
-      timeout: 10000,
+      max_tokens: 500,
+      timeout: 15000,
     });
 
     const responseText = completion.choices?.[0]?.message?.content?.trim() || '';
 
-    // Processa a resposta recebida (esperando os campos Versículo e Reflexão)
+    // Extração segura dos campos
     const verseMatch = responseText.match(/Versículo:\s*(.+)/i);
-    const reflectionMatch = responseText.match(/Reflexão:\s*(.+)/i);
+    const contextMatch = responseText.match(/Contexto:\s*([\s\S]+?)Aplicação:/i);
+    const applicationMatch = responseText.match(/Aplicação:\s*(.+)/i);
 
     const verse = verseMatch ? verseMatch[1].trim() : 'Versículo não encontrado.';
-    const reflection = reflectionMatch ? reflectionMatch[1].trim() : 'Reflexão não encontrada.';
+    const context = contextMatch ? contextMatch[1].trim() : 'Contexto não encontrado.';
+    const application = applicationMatch ? applicationMatch[1].trim() : 'Aplicação não encontrada.';
 
     return new Response(
-      JSON.stringify({ verse, reflection }),
+      JSON.stringify({ verse, context, application }),
       { headers: { 'Content-Type': 'application/json' } }
     );
 
   } catch (err) {
-    console.error('Erro na geração da Palavra:', err);
+    console.error('[GodCares] Erro ao gerar Palavra:', err);
     return new Response(
       JSON.stringify({ error: 'Erro ao gerar Palavra. Tente novamente mais tarde.' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
