@@ -1,4 +1,4 @@
-// SelfCare ✝️ • Core Renovado (v2.0, 2025-04-28)
+// SelfCare ✝️ • Core Renovado v2.0.1 (2025-04-28)
 (() => {
   'use strict';
 
@@ -6,20 +6,20 @@
   const API = {
     suggestion: '/.netlify/functions/suggestion'
   };
-
-  // ===== Elementos =====
-  const $ = s => document.querySelector(s);
-
-  const entryEl = $('#entry');
-  const receiveBtn = $('#receiveWord');
-  const wordSection = $('#word-section');
-  const verseEl = $('#verse');
-  const reflectionEl = $('#reflection');
-  const historyList = $('#history-list');
-  const historySection = $('#history-section');
-
   const STORAGE_HISTORY = 'sc_history';
   const MAX_HISTORY = 20;
+
+  // ===== Utilitários =====
+  const $ = selector => document.querySelector(selector);
+
+  // ===== Elementos DOM =====
+  const entryEl       = $('#entry');
+  const receiveBtn    = $('#receiveWord');
+  const wordSection   = $('#word-section');
+  const verseEl       = $('#verse');
+  const reflectionEl  = $('#reflection');
+  const historyList   = $('#history-list');
+  const historySection= $('#history-section');
 
   // ===== Funções Principais =====
   async function fetchWord(entryText) {
@@ -55,9 +55,9 @@
     }
     historySection.classList.remove('hidden');
     historyList.innerHTML = '';
-    history.forEach(item => {
+    history.forEach(({ verse, time }) => {
       const li = document.createElement('li');
-      li.innerHTML = `<strong>${new Date(item.time).toLocaleDateString('pt-BR')}</strong>: ${item.verse}`;
+      li.innerHTML = `<strong>${new Date(time).toLocaleDateString('pt-BR')}</strong>: ${verse}`;
       historyList.appendChild(li);
     });
   }
@@ -67,12 +67,18 @@
     const text = entryEl.value.trim();
     if (!text) return;
 
+    // Mostrar carregamento enquanto gera a Palavra
+    verseEl.innerHTML = "⌛ Buscando uma Palavra de Esperança...";
+    reflectionEl.innerHTML = "";
+    wordSection.classList.remove('hidden');
+
     const { verse, reflection } = await fetchWord(text);
 
-    verseEl.textContent = verse;
-    reflectionEl.textContent = reflection;
+    verseEl.innerHTML = `📖 ${verse}`;
+    reflectionEl.innerHTML = reflection;
 
-    wordSection.classList.remove('hidden');
+    verseEl.classList.add('fade-in');
+    reflectionEl.classList.add('fade-in');
 
     saveHistory(verse, reflection);
     renderHistory();
