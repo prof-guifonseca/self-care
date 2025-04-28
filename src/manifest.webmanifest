@@ -1,11 +1,12 @@
 {
-  "name": "SelfCare Check-in",
-  "short_name": "SelfCare",
-  "description": "PWA de autocuidado: diário rápido, check-in de humor e dicas personalizadas, tudo offline.",
+  "name": "SelfCare ✝️ Palavras de Esperança",
+  "short_name": "SelfCare ✝️",
+  "description": "Receba versículos e reflexões bíblicas para iluminar o seu dia. Um espaço de autocuidado espiritual.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#F3F7FB",
-  "theme_color": "#4D7EF0",
+  "background_color": "#F6F9FF",
+  "theme_color": "#4D6FE4",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "assets/icons/icon-192.png",
