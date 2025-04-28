@@ -6,14 +6,9 @@
   <meta name="theme-color" content="#4D6FE4">
   <title data-i18n="pageTitle">SelfCare • Calm & Harmonious</title>
 
-  <!-- Estilos e Manifesto PWA -->
   <link rel="stylesheet" href="assets/styles.css">
   <link rel="manifest" href="manifest.webmanifest">
-
-  <!-- Biblioteca de Gráficos -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
-
-  <!-- Script Principal -->
   <script src="script.js" defer></script>
 </head>
 <body>
@@ -22,7 +17,6 @@
   </header>
 
   <main>
-    <!-- Seção de Humor -->
     <section id="checkin" class="card">
       <h2 data-i18n="checkinHeader">Como você está hoje?</h2>
       <div class="mood-picker" data-i18n-aria-label="moodLabel">
@@ -34,17 +28,14 @@
       </div>
     </section>
 
-    <!-- Seção de Diário -->
     <section id="journal" class="card">
       <h2 data-i18n="journalHeader">Escreva sobre seu momento</h2>
       <textarea id="entry" rows="4" placeholder="Descreva seu dia..." data-i18n-placeholder="placeholderEntry"></textarea>
       <button id="saveEntry" class="btn" data-i18n="btnSave">Salvar</button>
 
-      <!-- Sugestão de Autocuidado -->
       <article id="suggestion" class="suggestion-card hidden" aria-live="polite" data-i18n-aria-label="feedbackAria"></article>
     </section>
 
-    <!-- Seção de Histórico -->
     <section id="history" class="card">
       <h2 data-i18n="historyHeader">Histórico de Sentimentos</h2>
       <ul id="history-list" aria-live="polite"></ul>
@@ -52,7 +43,6 @@
     </section>
   </main>
 
-  <!-- Registro do Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('serviceWorker.js')
