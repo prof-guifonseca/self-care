@@ -2,7 +2,7 @@
 
 import OpenAI from 'openai';
 
-// Captura segura da API Key
+// ===== Captura segura da API Key =====
 const API_KEY = process.env.OPENAI_API_KEY || '';
 
 if (!API_KEY) {
@@ -11,6 +11,7 @@ if (!API_KEY) {
 
 const openai = new OpenAI({ apiKey: API_KEY });
 
+// ===== Função Principal =====
 export default async (req, ctx) => {
   try {
     const { entryText } = await req.json();
@@ -22,7 +23,14 @@ export default async (req, ctx) => {
       );
     }
 
-    // Prompt estruturado
+    if (!API_KEY) {
+      return new Response(
+        JSON.stringify({ error: 'Chave de API ausente. Não é possível gerar a Palavra.' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // ===== Prompt estruturado para o GPT =====
     const prompt = `
 O usuário compartilhou: "${entryText}"
 
@@ -40,7 +48,7 @@ Contexto: (primeiro parágrafo)
 Aplicação: (segundo parágrafo)
 `.trim();
 
-    // Requisição à OpenAI
+    // ===== Requisição à OpenAI =====
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: prompt }],
@@ -51,7 +59,7 @@ Aplicação: (segundo parágrafo)
 
     const responseText = completion.choices?.[0]?.message?.content?.trim() || '';
 
-    // Extração dos dados
+    // ===== Extração dos dados com segurança =====
     const verseMatch = responseText.match(/Versículo:\s*(.+)/i);
     const contextMatch = responseText.match(/Contexto:\s*([\s\S]+?)Aplicação:/i);
     const applicationMatch = responseText.match(/Aplicação:\s*(.+)/i);
@@ -60,6 +68,7 @@ Aplicação: (segundo parágrafo)
     const context = contextMatch ? contextMatch[1].trim() : '⚠️ Contexto não encontrado.';
     const application = applicationMatch ? applicationMatch[1].trim() : '⚠️ Aplicação não encontrada.';
 
+    // ===== Resposta formatada =====
     return new Response(
       JSON.stringify({ verse, context, application }),
       { headers: { 'Content-Type': 'application/json' } }
