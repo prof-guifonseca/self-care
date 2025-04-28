@@ -1,7 +1,7 @@
 {
-  "name": "selfcare-palavras",
+  "name": "godcares",
   "version": "2.0.0",
-  "description": "SelfCare ✝️ — PWA de autocuidado espiritual: versículos e reflexões bíblicas diárias (Functions + Offline)",
+  "description": "GodCares ✝️ — PWA de autocuidado espiritual: versículos e reflexões bíblicas diárias (Functions + Offline)",
   "type": "module",
   "author": "Guilherme Fonseca",
   "license": "ISC",
@@ -14,6 +14,7 @@
   },
   "homepage": "https://seu-site.netlify.app",
   "keywords": [
+    "godcares",
     "selfcare",
     "PWA",
     "Netlify",
@@ -21,7 +22,8 @@
     "Reflexões",
     "Versículos",
     "Autocuidado",
-    "offline-first"
+    "offline-first",
+    "bíblia"
   ],
   "scripts": {
     "dev": "netlify dev --port 8888",
