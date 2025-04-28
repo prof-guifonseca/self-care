@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#4D6FE4">
-  <title>SelfCare ✝️ • Palavras de Esperança</title>
+  <title>GodCares ✝️ • Palavras de Esperança</title>
 
-  <!-- Estilos e Manifest -->
+  <!-- Estilos e Manifesto -->
   <link rel="stylesheet" href="assets/styles.css">
   <link rel="manifest" href="manifest.webmanifest">
 
@@ -15,12 +15,12 @@
 </head>
 <body>
   <header class="app-header">
-    <h1>SelfCare ✝️</h1>
-    <p class="subtitle">Autocuidado Espiritual Diário</p>
+    <h1>GodCares ✝️</h1>
+    <p class="subtitle">Palavras de Esperança para o seu dia</p>
   </header>
 
   <main>
-    <!-- Entrada de Reflexão -->
+    <!-- Entrada do Momento -->
     <section id="entry-section" class="card">
       <h2>Compartilhe seu momento</h2>
       <textarea id="entry" rows="4" placeholder="Descreva seu sentimento, pensamento ou oração..."></textarea>
@@ -34,14 +34,14 @@
       <p id="reflection" class="reflection"></p>
     </section>
 
-    <!-- Histórico Opcional -->
+    <!-- Histórico de Palavras -->
     <section id="history-section" class="card hidden">
       <h2>Palavras Recebidas</h2>
       <ul id="history-list"></ul>
     </section>
   </main>
 
-  <!-- Service Worker -->
+  <!-- Registro do Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('serviceWorker.js')
