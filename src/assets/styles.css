@@ -1,5 +1,5 @@
 /*==================================================
-  SelfCare ✝️ — Palavras de Esperança (v2.0, 2025-04-28)
+  GodCares ✝️ — Palavras de Esperança (v2.0.1, 2025-04-28)
   • Visual fluido, acolhedor e premium
   • Dark-mode otimizado
   • Tipografia: Inter
@@ -135,3 +135,65 @@ textarea {
   transition: background 0.3s, border-color 0.3s;
 }
 textarea:focus {
+  background: #fff;
+  border-color: var(--primary);
+  outline: none;
+}
+
+/*—— Sugestão de Palavra —————————————————————————*/
+.suggestion-card {
+  background: var(--accent-2);
+  border-left: 4px solid var(--primary);
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-size: 1rem;
+  color: var(--muted);
+  animation: fadeIn 0.4s ease both;
+}
+
+/*—— Lista de Histórico —————————————————————————*/
+#history-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 12rem;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+#history-list li {
+  background: var(--accent-2);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow);
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+}
+#history-list li span:last-child {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Scrollbar personalizada */
+#history-list::-webkit-scrollbar { width: 6px; }
+#history-list::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+/*—— Animações —————————————————————————————*/
+.fade-in {
+  animation: fadeInSuggestion 0.6s ease both;
+}
+@keyframes fadeInSuggestion {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/*—— Responsividade —————————————————————————*/
+@media (min-width: 768px) {
+  .card { padding: 2.5rem; }
+  .app-header h1 { font-size: 3rem; }
+}
