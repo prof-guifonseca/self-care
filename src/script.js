@@ -24,17 +24,28 @@
   let chart;
 
   // ===== Internacionalização (i18n) =====
-  let locale = {};
-  const t = key => locale[key] || key;
-
-  async function loadLocale() {
-    try {
-      locale = await fetch('assets/locales/pt-br.json').then(r => r.json());
-    } catch {
-      locale = {};
+ function applyLocale() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (locale[key]) {
+      el.textContent = locale[key];
     }
-    applyLocale();
-  }
+  });
+
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (locale[key]) {
+      el.setAttribute('placeholder', locale[key]);
+    }
+  });
+
+  document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+    const key = el.getAttribute('data-i18n-aria-label');
+    if (locale[key]) {
+      el.setAttribute('aria-label', locale[key]);
+    }
+  });
+}
 
   function applyLocale() {
     $('#app-header')?.textContent = t('appHeader');
