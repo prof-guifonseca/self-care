@@ -1,5 +1,5 @@
-// netlify/functions/selfcare-suggestion.js
-// Gera sugestão de autocuidado com OpenAI baseado no humor detectado
+// netlify/functions/suggestion.js
+// SelfCare ✝️ — Gera Palavra Bíblica + Reflexão via OpenAI
 
 import OpenAI from 'openai';
 
@@ -7,51 +7,55 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async (req, ctx) => {
   try {
-    // Validação básica do corpo da requisição
-    const { mood, entryText, sentiment } = await req.json();
-    if (!entryText || !sentiment?.label || sentiment?.score == null) {
+    // Lê o texto do usuário
+    const { entryText } = await req.json();
+    if (!entryText?.trim()) {
       return new Response(
-        JSON.stringify({ error: 'Dados insuficientes para gerar sugestão.' }),
+        JSON.stringify({ error: 'Texto vazio.' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Geração do prompt de forma natural e envolvente
+    // Novo prompt para gerar Palavra Bíblica personalizada
     const prompt = `
-O usuário relatou: "${entryText}"
-Humor detectado: ${sentiment.label} (confiança: ${(sentiment.score * 100).toFixed(1)}%).
-Em português, gere uma única resposta que:
-- Comece com uma mini-frase de acolhimento (tipo um mantra),
-- Em seguida, ofereça uma dica prática de autocuidado para esse estado emocional.
-Seja leve, gentil e inspirador, mas direto ao ponto.
-    `.trim();
+O usuário compartilhou o seguinte sentimento ou reflexão: "${entryText}"
+
+Com base na Bíblia Sagrada:
+1. Escolha um versículo que melhor acolha essa situação (cite o livro, capítulo e versículo).
+2. Depois, escreva uma breve reflexão inspiradora em português, com no máximo 3 linhas, baseada nesse versículo.
+
+Formato da resposta:
+Versículo: "Texto do versículo" (Livro Capítulo:Versículo)
+Reflexão: Texto da reflexão
+`.trim();
 
     // Chamada à OpenAI
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: prompt }],
-      temperature: 0.75,
-      max_tokens: 150, // Limite de resposta para ser conciso
-      timeout: 10000,  // Timeout de segurança de 10s
+      temperature: 0.7,
+      max_tokens: 300,
+      timeout: 10000,
     });
 
-    // Resposta bem-formatada
-    const suggestion = completion.choices?.[0]?.message?.content?.trim() || '';
+    const responseText = completion.choices?.[0]?.message?.content?.trim() || '';
 
-    if (!suggestion) {
-      throw new Error('Falha ao gerar sugestão.');
-    }
+    // Processa a resposta recebida (esperando os campos Versículo e Reflexão)
+    const verseMatch = responseText.match(/Versículo:\s*(.+)/i);
+    const reflectionMatch = responseText.match(/Reflexão:\s*(.+)/i);
+
+    const verse = verseMatch ? verseMatch[1].trim() : 'Versículo não encontrado.';
+    const reflection = reflectionMatch ? reflectionMatch[1].trim() : 'Reflexão não encontrada.';
 
     return new Response(
-      JSON.stringify({ suggestion }),
+      JSON.stringify({ verse, reflection }),
       { headers: { 'Content-Type': 'application/json' } }
     );
 
   } catch (err) {
-    console.error('Erro no selfcare-suggestion:', err);
-
+    console.error('Erro na geração da Palavra:', err);
     return new Response(
-      JSON.stringify({ error: 'Não foi possível gerar uma sugestão no momento.' }),
+      JSON.stringify({ error: 'Erro ao gerar Palavra. Tente novamente mais tarde.' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
