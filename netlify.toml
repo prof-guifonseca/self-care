@@ -1,19 +1,19 @@
-# netlify.toml — SelfCare MVP
-# -------------------------------------------------------------
-# • publish:       todos os arquivos estáticos vivem em /src
-# • functions:     código server-side em /netlify/functions
-# • node_bundler:  esbuild → suporte nativo a ES Modules
-# • redirect:      rotas amigáveis /api/* → Functions
+# netlify.toml — SelfCare ✝️ (2025-04-28)
+# -----------------------------------------------
+# Configurações de Build e Functions
+# Site:      arquivos estáticos em /src
+# Functions: serverless em /netlify/functions
+# API proxy: amigável com /api/*
 
 [build]
   publish   = "src"
   functions = "netlify/functions"
 
 [functions]
-  node_bundler = "esbuild"
+  node_bundler = "esbuild"  # Suporte a import/export modernos
 
 [[redirects]]
-  from   = "/api/*"
-  to     = "/.netlify/functions/:splat"
+  from = "/api/*"
+  to   = "/.netlify/functions/:splat"
   status = 200
-  force  = true   # garante que /api/* nunca seja servido do cache estático
+  force  = true
