@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#4D6FE4">
-  <title data-i18n="pageTitle">SelfCare • Check‑in Diário</title>
+  <title data-i18n="pageTitle">SelfCare • Calm & Harmonious</title>
 
-  <!-- Estilos e Manifest PWA -->
+  <!-- Estilos e Manifesto PWA -->
   <link rel="stylesheet" href="assets/styles.css">
   <link rel="manifest" href="manifest.webmanifest">
 
@@ -18,23 +18,13 @@
 </head>
 <body>
   <header class="app-header">
-    <h1 data-i18n="appHeader"></h1>
+    <h1 data-i18n="appHeader">SelfCare</h1>
   </header>
 
   <main>
-    <!-- Seção de Diário -->
-    <section id="journal" class="card">
-      <h2 data-i18n="journalHeader"></h2>
-      <textarea id="entry" rows="4" data-i18n-placeholder="placeholderEntry"></textarea>
-      <button id="saveEntry" class="btn" data-i18n="btnSave"></button>
-
-      <!-- Feedback Unificado -->
-      <article id="suggestion" class="suggestion-card hidden" aria-live="polite" data-i18n-aria-label="feedbackAria"></article>
-    </section>
-
     <!-- Seção de Humor -->
     <section id="checkin" class="card">
-      <h2 data-i18n="checkinHeader"></h2>
+      <h2 data-i18n="checkinHeader">Como você está hoje?</h2>
       <div class="mood-picker" data-i18n-aria-label="moodLabel">
         <button class="mood" data-mood="😃" aria-label="Muito feliz">😃</button>
         <button class="mood" data-mood="🙂" aria-label="Feliz">🙂</button>
@@ -44,11 +34,21 @@
       </div>
     </section>
 
-    <!-- Histórico e Gráfico -->
+    <!-- Seção de Diário -->
+    <section id="journal" class="card">
+      <h2 data-i18n="journalHeader">Escreva sobre seu momento</h2>
+      <textarea id="entry" rows="4" placeholder="Descreva seu dia..." data-i18n-placeholder="placeholderEntry"></textarea>
+      <button id="saveEntry" class="btn" data-i18n="btnSave">Salvar</button>
+
+      <!-- Sugestão de Autocuidado -->
+      <article id="suggestion" class="suggestion-card hidden" aria-live="polite" data-i18n-aria-label="feedbackAria"></article>
+    </section>
+
+    <!-- Seção de Histórico -->
     <section id="history" class="card">
-      <h2 data-i18n="historyHeader"></h2>
+      <h2 data-i18n="historyHeader">Histórico de Sentimentos</h2>
       <ul id="history-list" aria-live="polite"></ul>
-      <canvas id="moodChart" height="160"></canvas>
+      <canvas id="moodChart" height="200"></canvas>
     </section>
   </main>
 
@@ -56,7 +56,9 @@
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('serviceWorker.js')
-        .then(reg => reg.waiting && reg.waiting.postMessage('SKIP_WAITING'));
+        .then(registration => {
+          if (registration.waiting) registration.waiting.postMessage('SKIP_WAITING');
+        });
     }
   </script>
 </body>
