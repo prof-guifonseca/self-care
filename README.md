@@ -1,43 +1,32 @@
 <!--
-README – SelfCare ✝️
+README – GodCares ✝️
 Última revisão: 28 abr 2025
 -->
 
-<h1 align="center">✝️ SelfCare • Palavras de Esperança</h1>
+<h1 align="center">✝️ GodCares • Palavras de Esperança</h1>
 
 <p align="center">
-  <a href="https://selfcare-palavras.netlify.app" target="_blank">Acessar Demo</a> ·
+  <a href="https://seu-site.netlify.app" target="_blank">Acessar Demo</a> ·
   <a href="#contribuindo">Contribuir</a> ·
   <a href="LICENSE">Licença ISC</a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/prof-guifonseca/self-care/actions/workflows/ci.yml">
-    <img alt="CI" src="https://github.com/prof-guifonseca/self-care/actions/workflows/ci.yml/badge.svg">
-  </a>
-  <a href="https://github.com/prof-guifonseca/self-care/actions/workflows/codeql.yml">
-    <img alt="CodeQL" src="https://github.com/prof-guifonseca/self-care/actions/workflows/codeql.yml/badge.svg">
-  </a>
-  <a href="https://app.netlify.com/sites/selfcare-palavras/deploys">
-    <img alt="Netlify Status" src="https://api.netlify.com/api/v1/badges/f38e7b8a-fdae-4b63-9b34-de0dc0b7a68d/deploy-status">
-  </a>
-</p>
-
-<p align="center">
-  Aplicativo <strong>PWA</strong> focado no <strong>autocuidado espiritual</strong>.<br/>
-  Descreva seu momento e receba uma <strong>Palavra bíblica</strong> e uma <strong>reflexão inspiradora</strong>.<br/>
-  Funciona totalmente <strong>offline</strong> após instalado.
+  Aplicativo <strong>PWA</strong> de <strong>autocuidado espiritual</strong>: 
+  receba <strong>versículos bíblicos</strong> e <strong>reflexões personalizadas</strong> 
+  baseadas nos seus sentimentos — disponível <strong>offline</strong>, a qualquer hora.
 </p>
 
 ---
 
 ## ✨ Funcionalidades
 
-| Recurso                   | Descrição |
-|:---------------------------|:----------|
-| **Entrada Espiritual**     | Campo de texto para o usuário compartilhar sentimentos, orações ou desabafos. |
-| **Gerador de Palavra**     | Geração de versículo bíblico + reflexão usando OpenAI (serverless function). |
-| **Histórico Local**        | Salva localmente as Palavras recebidas para revisitar quando quiser. |
-| **Offline-First**          | Funciona sem internet após o primeiro acesso (Service Worker). |
-| **Instalável**             | Compatível com "Add to Home Screen" como um aplicativo real. |
-| **Deploy Serverless**      | Funções Netlify para chamadas API com proteção de variáveis ambiente. |
+| Recurso               | Descrição                                                                                   |
+|------------------------|---------------------------------------------------------------------------------------------|
+| **Entrada Pessoal**    | Registre seu sentimento, pensamento ou oração.                                               |
+| **Sugestão Bíblica**   | Receba automaticamente um versículo e uma reflexão inspiradora via OpenAI API.               |
+| **Histórico Local**    | Armazena até 20 palavras recebidas, visíveis mesmo sem internet.                             |
+| **Offline-First**      | Funciona offline graças ao Service Worker (caching inteligente).                             |
+| **PWA Instalável**     | Pode ser adicionado à tela inicial como um app nativo, com ícone e tela cheia.                |
+| **Dark Mode**          | Tema adaptativo para luz/escuro conforme preferências do dispositivo.                        |
+| **Código Moderno**     | JavaScript modularizado + Functions Serverless na Netlify (sem necessidade de backend fixo). |
