@@ -1,4 +1,4 @@
-// GodCares ✝️ — Core Principal v2.1 (2025-04-28)
+// GodCares ✝️ — Core Modularizado v2.2 (2025-04-28)
 (() => {
   'use strict';
 
@@ -9,15 +9,16 @@
   const STORAGE_KEY = 'godcares_history';
   const MAX_HISTORY = 20;
 
-  // ===== Utilitário DOM =====
-  const $ = s => document.querySelector(s);
+  // ===== Utilitários DOM =====
+  const $ = selector => document.querySelector(selector);
 
   // ===== Elementos =====
   const entryEl        = $('#entry');
   const receiveBtn     = $('#receiveWord');
   const wordSection    = $('#word-section');
   const verseEl        = $('#verse');
-  const reflectionEl   = $('#reflection');
+  const contextEl      = $('#context');
+  const applicationEl  = $('#application');
   const historySection = $('#history-section');
   const historyList    = $('#history-list');
 
@@ -30,20 +31,21 @@
         body: JSON.stringify({ entryText })
       });
       if (!res.ok) throw new Error();
-      const { verse, reflection } = await res.json();
-      return { verse, reflection };
+      const { verse, context, application } = await res.json();
+      return { verse, context, application };
     } catch (err) {
       console.error('[GodCares] Erro ao buscar Palavra:', err);
       return {
         verse: '⚠️ Não foi possível gerar uma Palavra agora.',
-        reflection: 'Tente novamente em alguns instantes.'
+        context: '',
+        application: 'Tente novamente em alguns instantes.'
       };
     }
   }
 
-  function saveHistory(verse, reflection) {
+  function saveHistory(verse, context, application) {
     const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    history.unshift({ verse, reflection, time: Date.now() });
+    history.unshift({ verse, context, application, time: Date.now() });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(history.slice(0, MAX_HISTORY)));
   }
 
@@ -67,19 +69,22 @@
     const text = entryEl.value.trim();
     if (!text) return;
 
-    verseEl.innerHTML = "⌛ Buscando uma Palavra de Esperança...";
-    reflectionEl.innerHTML = "";
+    verseEl.textContent = "⌛ Buscando uma Palavra de Esperança...";
+    contextEl.textContent = "";
+    applicationEl.textContent = "";
     wordSection.classList.remove('hidden');
 
-    const { verse, reflection } = await fetchWord(text);
+    const { verse, context, application } = await fetchWord(text);
 
-    verseEl.innerHTML = `📖 ${verse}`;
-    reflectionEl.innerHTML = reflection;
+    verseEl.textContent = `📖 ${verse}`;
+    contextEl.textContent = context;
+    applicationEl.textContent = application;
 
     verseEl.classList.add('fade-in');
-    reflectionEl.classList.add('fade-in');
+    contextEl.classList.add('fade-in');
+    applicationEl.classList.add('fade-in');
 
-    saveHistory(verse, reflection);
+    saveHistory(verse, context, application);
     renderHistory();
 
     entryEl.value = '';
