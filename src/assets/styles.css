@@ -1,5 +1,5 @@
 /*==================================================
-  SelfCare – Calm & Harmonious Theme (v1.1, 2025-04-27)
+  SelfCare – Calm & Harmonious Theme (v1.1.1, 2025-04-28)
   • Tons suaves de azul e areia
   • Tipografia “Inter”
   • Micro-animações & sombras discretas
@@ -28,11 +28,11 @@
     --bg-grad:    linear-gradient(180deg,#1B1E24 0%,#111418 80%);
     --card:       #1C1F25;
     --text:       #E6E9EF;
-    --muted:      #9CA3AF;
+    --muted:      #BDC3C7; /* clareado para melhor contraste */
     --accent:     #39404A;
     --accent-2:   #282D34;
-    --shadow:     0 4px 12px rgba(0,0,0,.55);
-    --shadow-2:   0 6px 20px rgba(0,0,0,.6);
+    --shadow:     0 4px 12px rgba(0,0,0,.4);
+    --shadow-2:   0 6px 20px rgba(0,0,0,.5);
   }
 }
 
@@ -55,13 +55,13 @@ body {
 /*—— Layout ————————————————————————————————————*/
 main {
   width: 100%;
-  max-width: 400px;
+  max-width: 640px; /* Ampliado para telas médias */
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 .app-header h1 {
-  font-size: clamp(1.75rem, 2.4vw + 1rem, 2.5rem);
+  font-size: clamp(2rem, 5vw, 3rem); /* Clamp ajustado */
   font-weight: 600;
   color: var(--primary-2);
   text-align: center;
@@ -93,7 +93,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  transition: box-shadow .25s, transform .25s;
+  transition: all .25s ease-in-out;
 }
 .card:hover {
   box-shadow: var(--shadow-2);
@@ -120,7 +120,7 @@ main {
   border-radius: 50%;
   box-shadow: var(--shadow);
   cursor: pointer;
-  transition: transform .15s, background-color .3s;
+  transition: all .25s ease-in-out;
 }
 .mood:hover,
 .mood:focus-visible {
@@ -138,7 +138,7 @@ main {
 
 /*—— Botão Primário ———————————————————————————*/
 .btn {
-  align-self: start;
+  align-self: center;
   padding: .75rem 1.5rem;
   background: var(--primary);
   color: #fff;
@@ -148,7 +148,8 @@ main {
   font-weight: 500;
   cursor: pointer;
   box-shadow: var(--shadow);
-  transition: background .2s, transform .1s;
+  transition: all .25s ease-in-out;
+  text-align: center;
 }
 .btn:hover {
   background: var(--primary-2);
@@ -168,7 +169,7 @@ input {
   border-radius: calc(var(--radius) - .25rem);
   font-size: 1rem;
   color: var(--text);
-  transition: border-color .25s, background .25s;
+  transition: all .25s ease-in-out;
   resize: vertical;
 }
 textarea:focus,
@@ -215,7 +216,9 @@ input:focus {
 }
 
 /* Scrollbar WebKit */
-#history-list::-webkit-scrollbar { width: 6px; }
+#history-list::-webkit-scrollbar {
+  width: 6px;
+}
 #history-list::-webkit-scrollbar-thumb {
   background: var(--accent);
   border-radius: 3px;
@@ -237,5 +240,5 @@ canvas#moodChart {
 /*—— Responsivo ———————————————————————————————*/
 @media (min-width: 840px) {
   .card { padding: 2.5rem; }
-  .app-header h1 { font-size: 2.75rem; }
+  .app-header h1 { font-size: 3rem; }
 }
