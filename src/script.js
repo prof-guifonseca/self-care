@@ -1,49 +1,55 @@
-// Self-Care App – Core Consolidado v1.1 (2025-04-27)
+// SelfCare App – Core Consolidado v1.2 (2025-04-28)
 (() => {
   'use strict';
 
   // ===== Configurações =====
   const STORAGE_HISTORY = 'sc_history';
-  const STORAGE_NOTES   = 'sc_notes';
-  const MAX_HISTORY     = 50;
-  const DISPLAY_LIMIT   = 7;
+  const MAX_HISTORY = 50;
+  const DISPLAY_LIMIT = 7;
   const API = {
     suggestion: '/.netlify/functions/suggestion',
     sentiment:  '/api/sentiment'
   };
 
   // ===== Elementos =====
-  const entryEl       = document.getElementById('entry');
-  const saveBtn       = document.getElementById('saveEntry');
-  const suggestionEl  = document.getElementById('suggestion');
-  const historyList   = document.getElementById('history-list');
-  const moodButtons   = document.querySelectorAll('.mood');
-  const moodChartCanv = document.getElementById('moodChart');
+  const $ = selector => document.querySelector(selector);
+  const $$ = selector => document.querySelectorAll(selector);
+
+  const entryEl      = $('#entry');
+  const saveBtn      = $('#saveEntry');
+  const suggestionEl = $('#suggestion');
+  const historyList  = $('#history-list');
+  const moodButtons  = $$('.mood');
+  const moodChartCanv = $('#moodChart');
   let chart;
 
   // ===== Internacionalização (i18n) =====
   let locale = {};
   const t = key => locale[key] || key;
+
   async function loadLocale() {
     try {
       locale = await fetch('assets/locales/pt-br.json').then(r => r.json());
-    } catch { locale = {}; }
+    } catch {
+      locale = {};
+    }
     applyLocale();
   }
+
   function applyLocale() {
-    document.querySelector('h1').textContent = t('appHeader');
-    document.querySelector('#journal h2').textContent     = t('journalHeader');
-    entryEl.placeholder    = t('placeholderEntry');
-    saveBtn.textContent    = t('btnSave');
-    document.querySelector('#checkin h2').textContent     = t('checkinHeader');
-    document.querySelector('#history h2').textContent     = t('historyHeader');
-    document.querySelector('.mood-picker').ariaLabel       = t('moodLabel');
-    suggestionEl.ariaLabel = t('feedbackAria');
+    $('#app-header')?.textContent = t('appHeader');
+    $('#journal-header')?.textContent = t('journalHeader');
+    $('#entry')?.setAttribute('placeholder', t('placeholderEntry'));
+    $('#saveEntry')?.textContent = t('btnSave');
+    $('#checkin-header')?.textContent = t('checkinHeader');
+    $('#history-header')?.textContent = t('historyHeader');
+    $('.mood-picker')?.setAttribute('aria-label', t('moodLabel'));
+    $('#suggestion')?.setAttribute('aria-label', t('feedbackAria'));
   }
 
   // ===== Helpers =====
-  const formatTime = ts => new Date(ts)
-    .toLocaleString('pt-BR', { weekday:'short', hour:'2-digit', minute:'2-digit' });
+  const formatTime = ts =>
+    new Date(ts).toLocaleString('pt-BR', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
 
   async function fetchSuggestion({ mood, entryText, sentiment }) {
     try {
@@ -56,7 +62,7 @@
       const { suggestion } = await res.json();
       return suggestion;
     } catch {
-      return t('errorSuggestion');
+      return t('errorSuggestion') || 'Não foi possível gerar sugestão.';
     }
   }
 
@@ -67,40 +73,43 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text })
       });
-      if (res.ok) {
-        const data = await res.json();
-        const label = data[0]?.label || 'NEUTRAL';
-        return label === 'NEGATIVE' ? -1 : label === 'POSITIVE' ? 1 : 0;
-      }
-      throw new Error();
+      if (!res.ok) throw new Error();
+      const [data] = await res.json();
+      const label = data?.label || 'NEUTRAL';
+      return label === 'NEGATIVE' ? -1 : label === 'POSITIVE' ? 1 : 0;
     } catch {
       return 0;
     }
   }
 
   function saveHistory(mood) {
-    const hist = JSON.parse(localStorage.getItem(STORAGE_HISTORY) || '[]');
-    hist.unshift({ mood, time: Date.now() });
-    localStorage.setItem(STORAGE_HISTORY, JSON.stringify(hist.slice(0, MAX_HISTORY)));
+    const history = JSON.parse(localStorage.getItem(STORAGE_HISTORY) || '[]');
+    history.unshift({ mood, time: Date.now() });
+    localStorage.setItem(STORAGE_HISTORY, JSON.stringify(history.slice(0, MAX_HISTORY)));
   }
 
   function renderHistory() {
-    const hist = JSON.parse(localStorage.getItem(STORAGE_HISTORY) || '[]');
+    const history = JSON.parse(localStorage.getItem(STORAGE_HISTORY) || '[]');
     historyList.innerHTML = '';
-    hist.slice(0, DISPLAY_LIMIT).forEach(item => {
+    history.slice(0, DISPLAY_LIMIT).forEach(({ mood, time }) => {
       const li = document.createElement('li');
-      li.innerHTML = `<span>${item.mood}</span><span>${formatTime(item.time)}</span>`;
+      li.innerHTML = `<span>${mood}</span><span>${formatTime(time)}</span>`;
       historyList.appendChild(li);
     });
-    updateChart(hist);
+    updateChart(history);
   }
 
   function updateChart(history) {
     if (!moodChartCanv || typeof Chart === 'undefined') return;
-    const counts = {};
-    history.forEach(i => counts[i.mood] = (counts[i.mood] || 0) + 1);
+
+    const counts = history.reduce((acc, { mood }) => {
+      acc[mood] = (acc[mood] || 0) + 1;
+      return acc;
+    }, {});
+
     const labels = Object.keys(counts);
-    const data   = labels.map(l => counts[l]);
+    const data = labels.map(l => counts[l]);
+
     if (chart) {
       chart.data.labels = labels;
       chart.data.datasets[0].data = data;
@@ -108,7 +117,7 @@
     } else {
       chart = new Chart(moodChartCanv.getContext('2d'), {
         type: 'bar',
-        data: { labels, datasets: [{ data }] },
+        data: { labels, datasets: [{ data, backgroundColor: '#4D6FE4' }] },
         options: {
           plugins: { legend: { display: false } },
           scales: { y: { beginAtZero: true } }
@@ -119,9 +128,9 @@
 
   // ===== Handlers =====
   saveBtn.addEventListener('click', async () => {
-    const text       = entryEl.value.trim();
+    const text = entryEl.value.trim();
     if (!text) return;
-    const sentiment  = await analyzeSentiment(text);
+    const sentiment = await analyzeSentiment(text);
     const suggestion = await fetchSuggestion({ mood: null, entryText: text, sentiment });
     suggestionEl.textContent = suggestion;
     suggestionEl.classList.remove('hidden');
@@ -131,7 +140,7 @@
   });
 
   moodButtons.forEach(btn => btn.addEventListener('click', async () => {
-    const mood       = btn.dataset.mood;
+    const mood = btn.dataset.mood;
     const suggestion = await fetchSuggestion({ mood, entryText: '', sentiment: 0 });
     suggestionEl.textContent = suggestion;
     suggestionEl.classList.remove('hidden');
@@ -144,4 +153,5 @@
     loadLocale();
     renderHistory();
   });
+
 })();
