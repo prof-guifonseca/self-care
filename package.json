@@ -1,7 +1,7 @@
 {
-  "name": "self-care",
-  "version": "1.0.0",
-  "description": "Self-Care PWA • Check-in de humor, dicas e citações (Functions + Offline)",
+  "name": "selfcare-palavras",
+  "version": "2.0.0",
+  "description": "SelfCare ✝️ — PWA de autocuidado espiritual: versículos e reflexões bíblicas diárias (Functions + Offline)",
   "type": "module",
   "author": "Guilherme Fonseca",
   "license": "ISC",
@@ -12,21 +12,23 @@
   "bugs": {
     "url": "https://github.com/prof-guifonseca/self-care/issues"
   },
-  "homepage": "https://seu-site.netlify.app/#readme",
+  "homepage": "https://seu-site.netlify.app",
   "keywords": [
-    "self-care",
+    "selfcare",
     "PWA",
     "Netlify",
-    "JavaScript",
+    "Espiritualidade",
+    "Reflexões",
+    "Versículos",
+    "Autocuidado",
     "offline-first"
   ],
   "scripts": {
-    "dev":   "netlify dev --port 8888",
-    "build": "npm run lint && npm test && netlify build --context production",
+    "dev": "netlify dev --port 8888",
+    "build": "npm run format && netlify build --context production",
     "start": "serve -s src",
-    "lint":  "prettier --check \"**/*.{js,html,css,json}\"",
-    "format":"prettier --write \"**/*.{js,html,css,json}\"",
-    "test":  "echo \"(tests pendentes)\""
+    "format": "prettier --write \"**/*.{js,html,css,json,md}\"",
+    "test": "echo \"(testes não aplicáveis no MVP)\""
   },
   "engines": {
     "node": ">=18 <22"
