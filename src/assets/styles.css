@@ -1,5 +1,5 @@
 /*==================================================
-  GodCares ✝️ — Palavras de Esperança (v2.0.1, 2025-04-28)
+  GodCares ✝️ — Palavras de Esperança (v2.2, 2025-04-28)
   • Visual fluido, acolhedor e premium
   • Dark-mode otimizado
   • Tipografia: Inter
@@ -140,16 +140,20 @@ textarea:focus {
   outline: none;
 }
 
-/*—— Sugestão de Palavra —————————————————————————*/
-.suggestion-card {
-  background: var(--accent-2);
-  border-left: 4px solid var(--primary);
-  padding: 1rem 1.5rem;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+/*—— Versículo e Reflexão ———————————————————————*/
+.verse {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-2);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.context,
+.application {
   font-size: 1rem;
   color: var(--muted);
-  animation: fadeIn 0.4s ease both;
+  text-align: justify;
+  margin-bottom: 1rem;
 }
 
 /*—— Lista de Histórico —————————————————————————*/
