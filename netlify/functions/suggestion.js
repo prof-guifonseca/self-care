@@ -53,8 +53,7 @@ Aplicação: (segundo parágrafo)
       model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
-      max_tokens: 500,
-      timeout: 15000,
+      max_tokens: 1000,
     });
 
     const responseText = completion.choices?.[0]?.message?.content?.trim() || '';
