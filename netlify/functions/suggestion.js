@@ -31,8 +31,7 @@ O usuário compartilhou: "${entryText}"
 
 TAREFA:
 1. Escolha um trecho do Novo Testamento (1–3 versículos consecutivos) que ofereça acolhimento e orientação.
-2. Não use estes, pois foram usados recentemente: ${avoid.length?avoid.join('; '):'—'}.
-3. Escreva DOIS parágrafos:
+2. Escreva DOIS parágrafos:
    • Contexto Bíblico (≤120 palavras)
    • Aplicação Pessoal (≤120 palavras)
 `;
