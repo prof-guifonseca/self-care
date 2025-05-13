@@ -1,9 +1,10 @@
-// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.1.1, 2025-04-28)
+// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.1.2, 2025-05-13)
 
 import OpenAI from 'openai';
 
-// ===== Captura segura da API Key =====
-const API_KEY = process.env.OPENAI_API_KEY || '';
+// ===== Configurações =====
+const API_KEY  = process.env.OPENAI_API_KEY  || '';
+const MODEL_ID = process.env.OPENAI_MODEL_ID || 'gpt-4o';   // ⬅️ modelo 4o padrão
 
 if (!API_KEY) {
   console.error('[GodCares] ⚠️ OPENAI_API_KEY não configurada.');
@@ -30,7 +31,7 @@ export default async (req, ctx) => {
       );
     }
 
-    // ===== Prompt estruturado para o GPT =====
+    // ===== Prompt estruturado =====
     const prompt = `
 O usuário compartilhou: "${entryText}"
 
@@ -50,7 +51,7 @@ Aplicação: (segundo parágrafo)
 
     // ===== Requisição à OpenAI =====
     const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: MODEL_ID,             // ⬅️ agora usa 'gpt-4o' (ou valor da env OPENAI_MODEL_ID)
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
       max_tokens: 1000,
@@ -58,14 +59,14 @@ Aplicação: (segundo parágrafo)
 
     const responseText = completion.choices?.[0]?.message?.content?.trim() || '';
 
-    // ===== Extração dos dados com segurança =====
-    const verseMatch = responseText.match(/Versículo:\s*(.+)/i);
-    const contextMatch = responseText.match(/Contexto:\s*([\s\S]+?)Aplicação:/i);
+    // ===== Extração segura =====
+    const verseMatch       = responseText.match(/Versículo:\s*(.+)/i);
+    const contextMatch     = responseText.match(/Contexto:\s*([\s\S]+?)Aplicação:/i);
     const applicationMatch = responseText.match(/Aplicação:\s*(.+)/i);
 
-    const verse = verseMatch ? verseMatch[1].trim() : '⚠️ Versículo não encontrado.';
-    const context = contextMatch ? contextMatch[1].trim() : '⚠️ Contexto não encontrado.';
-    const application = applicationMatch ? applicationMatch[1].trim() : '⚠️ Aplicação não encontrada.';
+    const verse       = verseMatch      ? verseMatch[1].trim()       : '⚠️ Versículo não encontrado.';
+    const context     = contextMatch    ? contextMatch[1].trim()     : '⚠️ Contexto não encontrado.';
+    const application = applicationMatch? applicationMatch[1].trim() : '⚠️ Aplicação não encontrada.';
 
     // ===== Resposta formatada =====
     return new Response(
