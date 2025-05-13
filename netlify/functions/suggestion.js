@@ -1,10 +1,10 @@
-// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.1.2, 2025-05-13)
+// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.2.0, 2025-05-13)
 
 import OpenAI from 'openai';
 
 // ===== Configurações =====
 const API_KEY  = process.env.OPENAI_API_KEY  || '';
-const MODEL_ID = process.env.OPENAI_MODEL_ID || 'gpt-4o';   // ⬅️ modelo 4o padrão
+const MODEL_ID = process.env.OPENAI_MODEL_ID || 'gpt-4o';   // modelo 4o padrão
 
 if (!API_KEY) {
   console.error('[GodCares] ⚠️ OPENAI_API_KEY não configurada.');
@@ -31,30 +31,74 @@ export default async (req, ctx) => {
       );
     }
 
-    // ===== Prompt estruturado =====
-    const prompt = `
+    // ===== Engenharia de Prompt – Nova Estrutura =====
+    const userPrompt = `
 O usuário compartilhou: "${entryText}"
 
-Com base na Bíblia Sagrada:
-1. Selecione um versículo que traga acolhimento e sabedoria para essa situação (cite o Livro, Capítulo e Versículo).
-2. Depois, escreva dois pequenos parágrafos de reflexão:
-   - Contexto Bíblico: explique o contexto do versículo.
-   - Aplicação Pessoal: conecte com a realidade emocional/espiritual da pessoa.
+TAREFA:
+1. Selecione um único versículo bíblico (NVI) que ofereça acolhimento e sabedoria para essa situação. Cite Livro Capítulo:Versículo.
+2. Escreva **dois** pequenos parágrafos:
+   • *Contexto Bíblico* – explique o contexto histórico-teológico do versículo.  
+   • *Aplicação Pessoal* – conecte o versículo à realidade emocional/espiritual do usuário.
+3. Respeite o **formato exato** abaixo, sem linhas extras.
 
-⚡ Formato esperado:
+FORMATO:
 Versículo: "Texto do versículo" (Livro Capítulo:Versículo)
 
-Contexto: (primeiro parágrafo)
+Contexto: (máx. 120 palavras)
 
-Aplicação: (segundo parágrafo)
+Aplicação: (máx. 120 palavras)
 `.trim();
 
     // ===== Requisição à OpenAI =====
     const completion = await openai.chat.completions.create({
-      model: MODEL_ID,             // ⬅️ agora usa 'gpt-4o' (ou valor da env OPENAI_MODEL_ID)
-      messages: [{ role: 'user', content: prompt }],
+      model: MODEL_ID,
       temperature: 0.7,
       max_tokens: 1000,
+      messages: [
+        {
+          role: 'system',
+          content: `Você é um conselheiro pastoral evangélico com sólida formação teológica. 
+Fale de forma acolhedora, simples e bíblica, citando a versão NVI. 
+Nunca ofereça aconselhamento médico ou jurídico.`
+        },
+        {
+          role: 'assistant',
+          content: `Diretrizes internas (não revele ao usuário): 
+- Sempre siga exatamente o formato solicitado. 
+- Evite versículos repetidos nos últimos 30 minutos. 
+- Cada parágrafo ≤ 120 palavras. 
+- Seja empático e centrado em Jesus.`
+        },
+        // Few-shot 1
+        {
+          role: 'user',
+          content: 'Estou ansioso com uma decisão importante no trabalho.'
+        },
+        {
+          role: 'assistant',
+          content: `Versículo: "Entregue o seu caminho ao Senhor; confie nele, e ele agirá." (Salmos 37:5)
+
+Contexto: O salmo 37, atribuído a Davi, encoraja os fiéis a confiarem na justiça de Deus em meio às pressões da vida. Ele contrasta a prosperidade aparente dos ímpios com a recompensa duradoura dos que esperam no Senhor.
+
+Aplicação: Quando você se vê diante de escolhas que geram ansiedade, lembrar que o controle final pertence a Deus traz paz. Entregar-lhe a decisão — em oração e fé — alinha seu coração à vontade divina e liberta você da paralisia do medo.`
+        },
+        // Few-shot 2
+        {
+          role: 'user',
+          content: 'Perdi alguém querido e me sinto sem chão.'
+        },
+        {
+          role: 'assistant',
+          content: `Versículo: "Bem-aventurados os que choram, pois serão consolados." (Mateus 5:4)
+
+Contexto: No Sermão do Monte, Jesus descreve valores do Reino de Deus. Ele declara feliz quem lamenta, pois Deus mesmo prometeu consolo — antecipando o cuidado divino e a esperança da restauração futura.
+
+Aplicação: Seu luto não passa despercebido ao Senhor. Ele vê suas lágrimas e promete transformá-las em consolo. Permita-se chorar na presença de Deus; Nele, a saudade encontra abrigo e, aos poucos, o coração ferido descobre nova esperança.`
+        },
+        // Prompt real do usuário
+        { role: 'user', content: userPrompt }
+      ]
     });
 
     const responseText = completion.choices?.[0]?.message?.content?.trim() || '';
