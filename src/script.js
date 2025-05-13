@@ -1,4 +1,4 @@
-// Core Modularizado v2.2 Consolidado (ajustado para usar “passage” em vez de “verse”)
+// Core Modularizado v2.2 Consolidado (front-end ajustado para “passage”)
 (() => {
   'use strict';
 
@@ -31,8 +31,8 @@
         body: JSON.stringify({ entryText })
       });
       if (!res.ok) throw new Error();
+      // agora esperamos { passage, context, application }
       const { passage, context, application } = await res.json();
-      // agora retornamos 'passage' em vez de 'verse'
       return { passage, context, application };
     } catch (err) {
       console.error('[GodCares] Erro ao buscar Palavra:', err);
@@ -70,15 +70,16 @@
     const text = entryEl.value.trim();
     if (!text) return;
 
-    verseEl.textContent = '⌛ Buscando uma Palavra de Esperança...';
-    contextEl.textContent = '';
+    verseEl.textContent       = '⌛ Buscando uma Palavra de Esperança...';
+    contextEl.textContent     = '';
     applicationEl.textContent = '';
     wordSection.classList.remove('hidden');
 
+    // usamos passage em vez de verse
     const { passage, context, application } = await fetchWord(text);
 
-    verseEl.textContent = `📖 ${passage}`;
-    contextEl.textContent = context;
+    verseEl.textContent       = `📖 ${passage}`;
+    contextEl.textContent     = context;
     applicationEl.textContent = application;
 
     verseEl.classList.add('fade-in');
