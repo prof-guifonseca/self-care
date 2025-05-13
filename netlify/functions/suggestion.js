@@ -1,15 +1,13 @@
-// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.6.1, 2025-05-13)
+// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.6.2, 2025-05-13)
 
 import OpenAI from 'openai';
 
 const API_KEY  = process.env.OPENAI_API_KEY  || '';
 const MODEL_ID = process.env.OPENAI_MODEL_ID || 'gpt-4o-2024-05-13';
-
 if (!API_KEY) console.error('[GodCares] ⚠️ OPENAI_API_KEY não configurada.');
 
 const openai = new OpenAI({ apiKey: API_KEY });
 
-/* ─── Handler ─── */
 export default async (req) => {
   try {
     const { entryText } = await req.json();
@@ -20,75 +18,67 @@ export default async (req) => {
       );
     }
 
-    // Definição da função para o modelo chamar
-    const functionDef = [
-      {
-        name: 'outputVerse',
-        description: 'Retorna um trecho bíblico e reflexões em JSON',
-        parameters: {
-          type: 'object',
-          properties: {
-            reference:   { type: 'string', description: 'Livro Cap:Vers[-Vers]' },
-            passage:     { type: 'string', description: 'Texto completo do trecho' },
-            context:     { type: 'string', description: 'Contexto Bíblico' },
-            application: { type: 'string', description: 'Aplicação Pessoal' }
-          },
-          required: ['reference','passage','context','application']
-        }
+    // Função para o modelo chamar (opcional)
+    const functionDef = [{
+      name: 'outputVerse',
+      description: 'Retorna um JSON com passagem e reflexões.',
+      parameters: {
+        type: 'object',
+        properties: {
+          reference:   { type: 'string' },
+          passage:     { type: 'string' },
+          context:     { type: 'string' },
+          application: { type: 'string' }
+        },
+        required: ['reference','passage','context','application']
       }
-    ];
+    }];
 
-    // Mensagens ao modelo
-    const messages = [
-      {
-        role: 'system',
-        content: 'Você é um conselheiro pastoral evangélico, acolhedor e bíblico.'
-      },
-      {
-        role: 'user',
-        content: `
+    // Prompt principal
+    const prompt = `
 O usuário compartilhou: "${entryText}"
 
 TAREFA:
-1. Escolha 1–3 versículos do Novo Testamento que tragam acolhimento e orientação.
-2. Escreva
-   • Contexto Bíblico (≤120 palavras)
+1. Varie a cada chamada: escolha **um trecho diferente** do Novo Testamento (1–3 versículos consecutivos).
+2. Escreva dois parágrafos:
+   • Contexto Bíblico (≤120 palavras)  
    • Aplicação Pessoal (≤120 palavras)
 
-**RETORNE EXATAMENTE ESTE JSON**:
+**RESPONDA JSON** (sem texto extra):
 {
   "reference": "Livro Cap:Vers[-Vers]",
   "passage":   "Texto completo do trecho",
-  "context":   "…",
-  "application":"…"
-}`
-      }
-    ];
+  "context":   "...",
+  "application":"..."
+}
+`.trim();
 
-    // Chamada com Function Calling
-    const { choices } = await openai.chat.completions.create({
-      model:          MODEL_ID,
-      temperature:    0.0,
-      max_tokens:     800,
-      messages,
-      functions:      functionDef,
-      function_call:  { name: 'outputVerse' }
+    // Chama o modelo
+    const res = await openai.chat.completions.create({
+      model:         MODEL_ID,
+      temperature:   0.7,              // mais variedade
+      max_tokens:    850,
+      messages: [
+        { role: 'system', content: 'Você é um conselheiro pastoral evangélico, acolhedor e bíblico.' },
+        { role: 'user',   content: prompt }
+      ],
+      functions:     functionDef,
+      function_call: 'auto'             // permite JSON via função ou texto
     });
 
-    const fnCall = choices[0].message.function_call;
-    if (!fnCall?.arguments) {
-      throw new Error('Modelo não retornou function_call');
-    }
+    const msg = res.choices[0].message;
 
-    // Parse seguro do JSON retornado
     let payload;
-    try {
-      payload = JSON.parse(fnCall.arguments);
-    } catch {
-      throw new Error('Erro ao parsear JSON do modelo');
+    if (msg.function_call?.arguments) {
+      // se a função foi chamada, parseie argumentos
+      payload = JSON.parse(msg.function_call.arguments);
+    } else if (msg.content) {
+      // fallback: o modelo deixou o JSON no content
+      payload = JSON.parse(msg.content);
+    } else {
+      throw new Error('Sem conteúdo ou function_call');
     }
 
-    // Retorna o objeto diretamente
     return new Response(JSON.stringify(payload), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
