@@ -1,5 +1,5 @@
 // netlify/functions/suggestion.js
-// GodCares ✝️ — Palavra e Reflexão Profunda com Bible-API (v2.7.0, 2025-05-13)
+// GodCares ✝️ — Palavra e Reflexão Profunda com Bible-API (v2.8.0, 2025-05-13)
 
 import OpenAI from 'openai';
 
@@ -14,17 +14,10 @@ if (!OPENAI_API_KEY) {
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
-/**
- * Busca o texto da passagem na Bible-API
- * @param {string} ref – ex: "João 14:1-3"
- * @returns {Promise<string>}
- */
 async function fetchPassage(ref) {
   const url = `${BIBLE_API_URL}/${encodeURIComponent(ref)}?translation=almeida`;
   const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`Passagem não encontrada: ${ref}`);
-  }
+  if (!res.ok) throw new Error(`Passagem não encontrada: ${ref}`);
   const data = await res.json();
   return data.text.trim();
 }
@@ -39,7 +32,7 @@ export default async (event) => {
       );
     }
 
-    // 1) GPT-3.5: escolhe só a referência bíblica
+    // 1) Pega só a referência (João 14:1-3)
     const refRes = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       temperature: 0.5,
@@ -49,22 +42,19 @@ export default async (event) => {
         {
           role: 'user',
           content: `
-O usuário compartilhou: "${entryText}"
+O usuário disse: "${entryText}"
 
 TAREFA:
 - Escolha **apenas** a referência de 1–3 versículos do Novo Testamento (ex: João 14:1-3).
-- Responda **somente** com essa referência, sem texto adicional.
+- Responda **somente** com essa referência, sem nada mais.
 `.trim()
         }
       ]
     });
-
     const reference = refRes.choices?.[0]?.message?.content.trim();
-    if (!reference) {
-      throw new Error('Não foi possível obter a referência.');
-    }
+    if (!reference) throw new Error('Não consegui a referência.');
 
-    // 2) Busca o texto real da Bíblia
+    // 2) Busca o texto real na Bible-API
     let passage;
     try {
       passage = await fetchPassage(reference);
@@ -75,7 +65,7 @@ TAREFA:
       );
     }
 
-    // 3) GPT-4o: gera contexto e aplicação usando o texto real
+    // 3) Gera Contexto e Aplicação com o texto real
     const reflectRes = await openai.chat.completions.create({
       model: 'gpt-4o-2024-05-13',
       temperature: 0.7,
@@ -90,12 +80,11 @@ Aqui está o texto (NVI):
 "${passage}"
 
 TAREFA:
-1. Explique o *Contexto Bíblico* em até 120 palavras.
-2. Explique a *Aplicação Pessoal* em até 120 palavras.
+1. Contexto Bíblico (≤120 palavras)
+2. Aplicação Pessoal (≤120 palavras)
 
-**RESPONDA EXATAMENTE ESTE JSON** (sem texto adicional):
+**RESPONDA APENAS ESTE JSON**:
 {
-  "reference": "${reference}",
   "context":   "…",
   "application":"…"
 }
@@ -104,12 +93,15 @@ TAREFA:
       ]
     });
 
-    const payload = JSON.parse(reflectRes.choices[0].message.content);
-    return new Response(JSON.stringify(payload), {
+    const { context, application } = JSON.parse(reflectRes.choices[0].message.content);
+
+    // 4) Monta o objeto final incluindo passage
+    const result = { reference, passage, context, application };
+
+    return new Response(JSON.stringify(result), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
-
   } catch (err) {
     console.error('[GodCares] Erro:', err);
     return new Response(
