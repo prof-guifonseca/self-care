@@ -201,3 +201,80 @@ textarea:focus {
   .card { padding: 2.5rem; }
   .app-header h1 { font-size: 3rem; }
 }
+/*==================================================
+  🔥 UPGRADE ESTÉTICO GodCares (patch v2.3)
+  Cole a partir daqui: tudo não-quebra-HTML
+==================================================*/
+
+/* 1. Tipografia fluida */
+body { font-size: clamp(0.95rem, 0.4vw + 0.85rem, 1.05rem); }
+
+/* 2. A11y focus universal */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent);
+}
+
+/* 3. Card “glass” (aplica em qualquer .card que receba .card--glass) */
+.card--glass {
+  backdrop-filter: blur(6px) saturate(160%);
+  background: rgba(255,255,255,0.55);
+}
+@media (prefers-color-scheme: dark) {
+  .card--glass { background: rgba(28,31,37,0.55); }
+}
+
+/* 4. Mood-picker emojis + pulso */
+.mood {
+  position: relative;
+  isolation: isolate;
+  width: 3.25rem;   /* ajuste se necessário */
+  height: 3.25rem;
+  border-radius: 50%;
+  background: var(--accent-2);
+  border: 2px solid transparent;
+  transition: transform .25s, border-color .25s;
+  cursor: pointer;
+}
+.mood::before {
+  content: var(--emoji, '🙂');
+  font-size: 1.8rem;
+  line-height: 3.25rem;
+  display: block;
+  text-align: center;
+  transition: transform .25s;
+}
+.mood:nth-child(1){ --emoji:'😄'; }
+.mood:nth-child(2){ --emoji:'😊'; }
+.mood:nth-child(3){ --emoji:'😐'; }
+.mood:nth-child(4){ --emoji:'😔'; }
+.mood:nth-child(5){ --emoji:'😭'; }
+
+.mood:hover        { transform: translateY(-2px); }
+.mood[aria-pressed="true"] {
+  background: linear-gradient(135deg,var(--primary),var(--primary-2));
+  border-color: var(--primary);
+  color:#fff;
+}
+.mood[aria-pressed="true"]::before {
+  animation: pulse .6s ease forwards;
+}
+@keyframes pulse { 50%{transform:scale(1.25);} }
+
+/* 5. Layout 2-colunas em telas ≥768px (zero HTML change) */
+@media (min-width: 768px) {
+  main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  /* mantém o diário/entrada em largura total se tiver id #journal */
+  #journal { grid-column: 1 / -1; }
+}
+
+/* 6. Sombras graduais (aplique .layer-lift em qualquer elemento) */
+.layer-lift { transition: box-shadow .3s, transform .3s; }
+.layer-lift:hover {
+  box-shadow: 0 6px 18px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.06);
+  transform: translateY(-4px);
+}
