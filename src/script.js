@@ -1,100 +1,79 @@
-// Core Modularizado v2.2 Consolidado (front-end ajustado para “passage”)
+// Core Modularizado v2.2 Ajustado para usar passage e reference
 (() => {
   'use strict';
 
-  // ===== Configurações =====
-  const API = {
-    suggestion: '/.netlify/functions/suggestion'
-  };
+  const API = { suggestion: '/.netlify/functions/suggestion' };
   const STORAGE_KEY = 'godcares_history';
   const MAX_HISTORY = 20;
+  const $ = sel => document.querySelector(sel);
 
-  // ===== Utilitários DOM =====
-  const $ = selector => document.querySelector(selector);
-
-  // ===== Elementos =====
-  const entryEl        = $('#entry');
-  const receiveBtn     = $('#receiveWord');
-  const wordSection    = $('#word-section');
-  const verseEl        = $('#verse');
-  const contextEl      = $('#context');
-  const applicationEl  = $('#application');
+  const entryEl       = $('#entry');
+  const receiveBtn    = $('#receiveWord');
+  const verseEl       = $('#verse');
+  const contextEl     = $('#context');
+  const applicationEl = $('#application');
+  const historyList   = $('#history-list');
   const historySection = $('#history-section');
-  const historyList    = $('#history-list');
 
-  // ===== Funções Principais =====
-  async function fetchWord(entryText) {
+  async function fetchWord(text) {
     try {
       const res = await fetch(API.suggestion, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ entryText })
+        body: JSON.stringify({ entryText: text })
       });
       if (!res.ok) throw new Error();
-      // agora esperamos { passage, context, application }
-      const { passage, context, application } = await res.json();
-      return { passage, context, application };
-    } catch (err) {
-      console.error('[GodCares] Erro ao buscar Palavra:', err);
+      // destruturamos passage, context, application e reference
+      const { reference, passage, context, application } = await res.json();
+      return { reference, passage, context, application };
+    } catch {
       return {
-        passage: '⚠️ Não foi possível gerar uma Palavra agora.',
+        reference: '',
+        passage: '⚠️ Erro ao gerar Palavra.',
         context: '',
-        application: 'Tente novamente em alguns instantes.'
+        application: ''
       };
     }
   }
 
-  function saveHistory(passage, context, application) {
-    const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    history.unshift({ verse: passage, context, application, time: Date.now() });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(history.slice(0, MAX_HISTORY)));
+  function saveHistory(ref, passage) {
+    const h = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+    h.unshift({ ref, passage, time: Date.now() });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(h.slice(0, MAX_HISTORY)));
   }
 
   function renderHistory() {
-    const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    if (history.length === 0) {
-      historySection.classList.add('hidden');
-      return;
-    }
+    const h = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+    if (!h.length) { historySection.classList.add('hidden'); return; }
     historySection.classList.remove('hidden');
     historyList.innerHTML = '';
-    history.forEach(({ verse, time }) => {
+    h.forEach(({ ref, passage, time }) => {
       const li = document.createElement('li');
-      li.innerHTML = `<strong>${new Date(time).toLocaleDateString('pt-BR')}</strong>: ${verse}`;
+      li.textContent = `${new Date(time).toLocaleDateString('pt-BR')} – ${ref}`;
       historyList.appendChild(li);
     });
   }
 
-  // ===== Eventos =====
   receiveBtn.addEventListener('click', async () => {
     const text = entryEl.value.trim();
     if (!text) return;
 
-    verseEl.textContent       = '⌛ Buscando uma Palavra de Esperança...';
-    contextEl.textContent     = '';
+    verseEl.textContent = '⌛ Buscando a Palavra…';
+    contextEl.textContent = '';
     applicationEl.textContent = '';
-    wordSection.classList.remove('hidden');
+    $('#word-section').classList.remove('hidden');
 
-    // usamos passage em vez de verse
-    const { passage, context, application } = await fetchWord(text);
+    const { reference, passage, context, application } = await fetchWord(text);
 
-    verseEl.textContent       = `📖 ${passage}`;
+    verseEl.textContent       = reference ? `📖 ${reference}` : `📖 ${passage}`;
     contextEl.textContent     = context;
     applicationEl.textContent = application;
 
-    verseEl.classList.add('fade-in');
-    contextEl.classList.add('fade-in');
-    applicationEl.classList.add('fade-in');
-
-    saveHistory(passage, context, application);
+    saveHistory(reference, passage);
     renderHistory();
 
     entryEl.value = '';
   });
 
-  // ===== Inicialização =====
-  window.addEventListener('load', () => {
-    renderHistory();
-  });
-
+  window.addEventListener('load', renderHistory);
 })();
