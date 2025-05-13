@@ -1,4 +1,4 @@
-// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.6.0, 2025-05-13)
+// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.6.1, 2025-05-13)
 
 import OpenAI from 'openai';
 
@@ -9,88 +9,96 @@ if (!API_KEY) console.error('[GodCares] ⚠️ OPENAI_API_KEY não configurada.'
 
 const openai = new OpenAI({ apiKey: API_KEY });
 
-/* cache simples em memória */
-const KEEP_DAYS = 3;
-globalThis.recentRefs = globalThis.recentRefs || new Map();
-function purgeOld() {
-  const ttl = KEEP_DAYS * 86_400_000, now = Date.now();
-  for (const [r,t] of globalThis.recentRefs) if (now - t > ttl) globalThis.recentRefs.delete(r);
-}
-function addRef(r)    { globalThis.recentRefs.set(r, Date.now()); }
-function getBlacklist(){ purgeOld(); return [...globalThis.recentRefs.keys()]; }
-
-/* handler */
+/* ─── Handler ─── */
 export default async (req) => {
   try {
     const { entryText } = await req.json();
-    if (!entryText?.trim()) return jsonErr('Digite algo 🙏',400);
+    if (!entryText?.trim()) {
+      return new Response(
+        JSON.stringify({ error: 'Digite algo para receber a Palavra.' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
 
-    const blacklist = getBlacklist();
-    const makePrompt = (avoid=[]) => `
+    // Definição da função para o modelo chamar
+    const functionDef = [
+      {
+        name: 'outputVerse',
+        description: 'Retorna um trecho bíblico e reflexões em JSON',
+        parameters: {
+          type: 'object',
+          properties: {
+            reference:   { type: 'string', description: 'Livro Cap:Vers[-Vers]' },
+            passage:     { type: 'string', description: 'Texto completo do trecho' },
+            context:     { type: 'string', description: 'Contexto Bíblico' },
+            application: { type: 'string', description: 'Aplicação Pessoal' }
+          },
+          required: ['reference','passage','context','application']
+        }
+      }
+    ];
+
+    // Mensagens ao modelo
+    const messages = [
+      {
+        role: 'system',
+        content: 'Você é um conselheiro pastoral evangélico, acolhedor e bíblico.'
+      },
+      {
+        role: 'user',
+        content: `
 O usuário compartilhou: "${entryText}"
 
 TAREFA:
-1. Escolha um trecho do Novo Testamento (1–3 versículos consecutivos) que ofereça acolhimento e orientação.
-2. Escreva DOIS parágrafos:
+1. Escolha 1–3 versículos do Novo Testamento que tragam acolhimento e orientação.
+2. Escreva
    • Contexto Bíblico (≤120 palavras)
    • Aplicação Pessoal (≤120 palavras)
-`;
 
-    const functionDef = [{
-      name: 'outputVerse',
-      description: 'Retorna a passagem e reflexões em JSON',
-      parameters: {
-        type: 'object',
-        properties: {
-          reference: { type: 'string', description: 'Livro Cap:Vers[-Vers]' },
-          passage:   { type: 'string', description: 'Texto completo do trecho' },
-          context:   { type: 'string', description: 'Contexto Bíblico' },
-          application:{ type: 'string', description: 'Aplicação Pessoal' },
-        },
-        required: ['reference','passage','context','application']
+**RETORNE EXATAMENTE ESTE JSON**:
+{
+  "reference": "Livro Cap:Vers[-Vers]",
+  "passage":   "Texto completo do trecho",
+  "context":   "…",
+  "application":"…"
+}`
       }
-    }];
+    ];
 
+    // Chamada com Function Calling
+    const { choices } = await openai.chat.completions.create({
+      model:          MODEL_ID,
+      temperature:    0.0,
+      max_tokens:     800,
+      messages,
+      functions:      functionDef,
+      function_call:  { name: 'outputVerse' }
+    });
+
+    const fnCall = choices[0].message.function_call;
+    if (!fnCall?.arguments) {
+      throw new Error('Modelo não retornou function_call');
+    }
+
+    // Parse seguro do JSON retornado
     let payload;
-    for (let i=0;i<3;i++) {
-      const res = await openai.chat.completions.create({
-        model: MODEL_ID,
-        temperature: 0.0,        // zero para máxima consistência
-        max_tokens: 850,
-        messages: [
-          { role:'system', content:'Você é um conselheiro pastoral evangélico, acolhedor e bíblico.' },
-          { role:'user',   content: makePrompt(blacklist) }
-        ],
-        functions: functionDef,
-        function_call: { name: 'outputVerse' }
-      });
-
-      const call = res.choices[0].message.function_call;
-      if (!call?.arguments) continue;
-      payload = JSON.parse(call.arguments);
-
-      if (payload.reference && !blacklist.includes(payload.reference)) {
-        addRef(payload.reference);
-        break;
-      }
+    try {
+      payload = JSON.parse(fnCall.arguments);
+    } catch {
+      throw new Error('Erro ao parsear JSON do modelo');
     }
 
-    if (!payload?.reference) {
-      return jsonErr('Não foi possível obter um trecho novo.',502);
-    }
+    // Retorna o objeto diretamente
+    return new Response(JSON.stringify(payload), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
 
-    return Response.json(payload);
-
-  } catch(err) {
+  } catch (err) {
     console.error('[GodCares] Erro:', err);
-    return jsonErr('⚠️ Problema interno. Tente novamente.',500);
+    return new Response(
+      JSON.stringify({ error: 'Não foi possível gerar a Palavra. Tente novamente.' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 };
-
-/* util */
-function jsonErr(msg,status=400){
-  return new Response(JSON.stringify({ error: msg }), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
