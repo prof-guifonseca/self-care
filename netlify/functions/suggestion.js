@@ -9,37 +9,60 @@ if (!API_KEY) console.error('[GodCares] ⚠️ OPENAI_API_KEY não configurada.'
 
 const openai = new OpenAI({ apiKey: API_KEY });
 
-// ==== Mini “KV” em memória (substitua por store real se tiver) ====
+/* =========================================================================
+   Mini-“KV” em memória (troque por KV real se quiser persistência cross-edge)
+   =========================================================================*/
+
+/** @type {number} */
 const KEEP_DAYS = 3;
-globalThis.recentVerses = globalThis.recentVerses || new Map<string, number>();
+
+/** @type {Map<string, number>} */
+globalThis.recentVerses = globalThis.recentVerses || new Map();
 
 function purgeOld() {
   const now = Date.now();
   const ttl = KEEP_DAYS * 24 * 60 * 60 * 1000;
-  for (const [v, t] of globalThis.recentVerses) if (now - t > ttl) globalThis.recentVerses.delete(v);
+  for (const [v, t] of globalThis.recentVerses) {
+    if (now - t > ttl) globalThis.recentVerses.delete(v);
+  }
 }
 
-function addVerse(v: string) { globalThis.recentVerses.set(v, Date.now()); }
+/** @param {string} v */
+function addVerse(v) {
+  globalThis.recentVerses.set(v, Date.now());
+}
 
-function getBlacklist(): string[] { purgeOld(); return [...globalThis.recentVerses.keys()]; }
+/** @returns {string[]} */
+function getBlacklist() {
+  purgeOld();
+  return [...globalThis.recentVerses.keys()];
+}
 
-// ===============================================================
+/* ========================================================================= */
+
 export default async (req, ctx) => {
   try {
     const { entryText } = await req.json();
-    if (!entryText?.trim())
-      return jsonErr('Texto vazio. Por favor, escreva algo para receber uma Palavra.', 400);
+    if (!entryText?.trim()) {
+      return jsonErr(
+        'Texto vazio. Por favor, escreva algo para receber uma Palavra.',
+        400,
+      );
+    }
 
-    // -------- prepara blacklist --------
-    const blacklist = getBlacklist();          // ex.: ["Salmos 37:5", "Mateus 5:4"]
+    // ---------- blacklist ----------
+    const blacklist = getBlacklist(); // ex.: ["Salmos 37:5", "Mateus 5:4"]
 
-    // ---------- monta prompt -----------
-    const makePrompt = (avoidList: string[]) => `
+    // ---------- prompt ----------
+    /** @param {string[]} avoidList */
+    const makePrompt = (avoidList) => `
 O usuário compartilhou: "${entryText}"
 
 TAREFA:
 1. Escolha um único versículo bíblico (NVI) que acolha e oriente essa situação.
-2. **Não** use nenhum destes, pois foram usados recentemente: ${avoidList.join('; ') || '—'}
+2. **Não** use nenhum destes, pois foram usados recentemente: ${
+      avoidList.length ? avoidList.join('; ') : '—'
+    }
 3. Escreva dois parágrafos:
    • Contexto Bíblico (≤120 palavras).
    • Aplicação Pessoal  (≤120 palavras).
@@ -62,44 +85,67 @@ Aplicação: …
         temperature: 0.7,
         max_tokens: 600,
         messages: [
-          { role: 'system', content: 'Você é um conselheiro pastoral evangélico…' },
-          { role: 'assistant', content: 'Diretrizes internas: siga formato, parágrafos ≤120 palavras.' },
+          {
+            role: 'system',
+            content:
+              'Você é um conselheiro pastoral evangélico de estilo acolhedor.',
+          },
+          {
+            role: 'assistant',
+            content:
+              'Diretrizes internas: siga o formato exato, parágrafos ≤120 palavras.',
+          },
           { role: 'user', content: makePrompt(blacklist) },
         ],
       });
 
-      responseText = completion.choices?.[0]?.message?.content?.trim() || '';
-      const match = responseText.match(/Versículo:\s*".*"\s*\(([^)]+)\)/i);
+      responseText =
+        completion.choices?.[0]?.message?.content?.trim() || '';
+
+      const match = responseText.match(
+        /Versículo:\s*".*"\s*\(([^)]+)\)/i,
+      );
       verse = match ? match[1].trim() : '';
 
       if (!verse || blacklist.includes(verse)) {
-        // registra e tenta de novo
+        // Repetido → adiciona à blacklist temporária e tenta de novo
         blacklist.push(verse || `attempt-${attempt}`);
         continue;
       }
       break; // sucesso
     }
 
-    if (!verse) return jsonErr('Não foi possível obter um versículo novo.', 502);
+    if (!verse) {
+      return jsonErr('Não foi possível obter um versículo novo.', 502);
+    }
 
-    // --- salva no “cache” para usos futuros ---
+    // Salva no “cache”
     addVerse(verse);
-    // se tiver KV real: ctx.waitUntil(KV.put(verse, Date.now().toString()))
+    // Se usar KV real: ctx.waitUntil(KV.put(verse, Date.now().toString()))
 
-    // --- parseia contexto / aplicação ---
-    const context = (/Contexto:\s*([\s\S]+?)Aplicação:/i.exec(responseText)?.[1] || '').trim();
-    const application = (/Aplicação:\s*([\s\S]+)$/i.exec(responseText)?.[1] || '').trim();
+    // Parseia contexto / aplicação
+    const context =
+      (/Contexto:\s*([\s\S]+?)Aplicação:/i.exec(responseText)?.[1] || '')
+        .trim();
+    const application =
+      (/Aplicação:\s*([\s\S]+)$/i.exec(responseText)?.[1] || '').trim();
 
     return Response.json({ verse, context, application });
-
   } catch (err) {
     console.error('[GodCares] Erro:', err);
-    return jsonErr('⚠️ Não foi possível gerar a Palavra. Tente novamente em alguns minutos.', 500);
+    return jsonErr(
+      '⚠️ Não foi possível gerar a Palavra. Tente novamente em alguns minutos.',
+      500,
+    );
   }
 };
 
-// util
-function jsonErr(msg: string, status = 400) {
+// ---------- helper ----------
+/**
+ * @param {string} msg
+ * @param {number} status
+ */
+function jsonErr(msg, status = 400) {
   return new Response(JSON.stringify({ error: msg }), {
     status,
     headers: { 'Content-Type': 'application/json' },
