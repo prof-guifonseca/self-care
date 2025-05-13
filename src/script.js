@@ -1,4 +1,4 @@
-// GodCares ✝️ — Core Modularizado v2.2 (2025-04-28)
+// Core Modularizado v2.2 Consolidado (ajustado para usar “passage” em vez de “verse”)
 (() => {
   'use strict';
 
@@ -31,21 +31,22 @@
         body: JSON.stringify({ entryText })
       });
       if (!res.ok) throw new Error();
-      const { verse, context, application } = await res.json();
-      return { verse, context, application };
+      const { passage, context, application } = await res.json();
+      // agora retornamos 'passage' em vez de 'verse'
+      return { passage, context, application };
     } catch (err) {
       console.error('[GodCares] Erro ao buscar Palavra:', err);
       return {
-        verse: '⚠️ Não foi possível gerar uma Palavra agora.',
+        passage: '⚠️ Não foi possível gerar uma Palavra agora.',
         context: '',
         application: 'Tente novamente em alguns instantes.'
       };
     }
   }
 
-  function saveHistory(verse, context, application) {
+  function saveHistory(passage, context, application) {
     const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    history.unshift({ verse, context, application, time: Date.now() });
+    history.unshift({ verse: passage, context, application, time: Date.now() });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(history.slice(0, MAX_HISTORY)));
   }
 
@@ -69,14 +70,14 @@
     const text = entryEl.value.trim();
     if (!text) return;
 
-    verseEl.textContent = "⌛ Buscando uma Palavra de Esperança...";
-    contextEl.textContent = "";
-    applicationEl.textContent = "";
+    verseEl.textContent = '⌛ Buscando uma Palavra de Esperança...';
+    contextEl.textContent = '';
+    applicationEl.textContent = '';
     wordSection.classList.remove('hidden');
 
-    const { verse, context, application } = await fetchWord(text);
+    const { passage, context, application } = await fetchWord(text);
 
-    verseEl.textContent = `📖 ${verse}`;
+    verseEl.textContent = `📖 ${passage}`;
     contextEl.textContent = context;
     applicationEl.textContent = application;
 
@@ -84,7 +85,7 @@
     contextEl.classList.add('fade-in');
     applicationEl.classList.add('fade-in');
 
-    saveHistory(verse, context, application);
+    saveHistory(passage, context, application);
     renderHistory();
 
     entryEl.value = '';
