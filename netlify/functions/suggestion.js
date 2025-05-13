@@ -1,128 +1,107 @@
-// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.2.0, 2025-05-13)
+// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.3.0, 2025-05-13)
 
 import OpenAI from 'openai';
 
-// ===== Configurações =====
 const API_KEY  = process.env.OPENAI_API_KEY  || '';
-const MODEL_ID = process.env.OPENAI_MODEL_ID || 'gpt-4o';   // modelo 4o padrão
+const MODEL_ID = process.env.OPENAI_MODEL_ID || 'gpt-4o';
 
-if (!API_KEY) {
-  console.error('[GodCares] ⚠️ OPENAI_API_KEY não configurada.');
-}
+if (!API_KEY) console.error('[GodCares] ⚠️ OPENAI_API_KEY não configurada.');
 
 const openai = new OpenAI({ apiKey: API_KEY });
 
-// ===== Função Principal =====
+// ==== Mini “KV” em memória (substitua por store real se tiver) ====
+const KEEP_DAYS = 3;
+globalThis.recentVerses = globalThis.recentVerses || new Map<string, number>();
+
+function purgeOld() {
+  const now = Date.now();
+  const ttl = KEEP_DAYS * 24 * 60 * 60 * 1000;
+  for (const [v, t] of globalThis.recentVerses) if (now - t > ttl) globalThis.recentVerses.delete(v);
+}
+
+function addVerse(v: string) { globalThis.recentVerses.set(v, Date.now()); }
+
+function getBlacklist(): string[] { purgeOld(); return [...globalThis.recentVerses.keys()]; }
+
+// ===============================================================
 export default async (req, ctx) => {
   try {
     const { entryText } = await req.json();
+    if (!entryText?.trim())
+      return jsonErr('Texto vazio. Por favor, escreva algo para receber uma Palavra.', 400);
 
-    if (!entryText?.trim()) {
-      return new Response(
-        JSON.stringify({ error: 'Texto vazio. Por favor, escreva algo para receber uma Palavra.' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
+    // -------- prepara blacklist --------
+    const blacklist = getBlacklist();          // ex.: ["Salmos 37:5", "Mateus 5:4"]
 
-    if (!API_KEY) {
-      return new Response(
-        JSON.stringify({ error: 'Chave de API ausente. Não é possível gerar a Palavra.' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // ===== Engenharia de Prompt – Nova Estrutura =====
-    const userPrompt = `
+    // ---------- monta prompt -----------
+    const makePrompt = (avoidList: string[]) => `
 O usuário compartilhou: "${entryText}"
 
 TAREFA:
-1. Selecione um único versículo bíblico (NVI) que ofereça acolhimento e sabedoria para essa situação. Cite Livro Capítulo:Versículo.
-2. Escreva **dois** pequenos parágrafos:
-   • *Contexto Bíblico* – explique o contexto histórico-teológico do versículo.  
-   • *Aplicação Pessoal* – conecte o versículo à realidade emocional/espiritual do usuário.
-3. Respeite o **formato exato** abaixo, sem linhas extras.
+1. Escolha um único versículo bíblico (NVI) que acolha e oriente essa situação.
+2. **Não** use nenhum destes, pois foram usados recentemente: ${avoidList.join('; ') || '—'}
+3. Escreva dois parágrafos:
+   • Contexto Bíblico (≤120 palavras).
+   • Aplicação Pessoal  (≤120 palavras).
+4. Formato exato:
 
-FORMATO:
-Versículo: "Texto do versículo" (Livro Capítulo:Versículo)
+Versículo: "Texto" (Livro Cap:Vers)
 
-Contexto: (máx. 120 palavras)
+Contexto: …
 
-Aplicação: (máx. 120 palavras)
+Aplicação: …
 `.trim();
 
-    // ===== Requisição à OpenAI =====
-    const completion = await openai.chat.completions.create({
-      model: MODEL_ID,
-      temperature: 0.7,
-      max_tokens: 1000,
-      messages: [
-        {
-          role: 'system',
-          content: `Você é um conselheiro pastoral evangélico com sólida formação teológica. 
-Fale de forma acolhedora, simples e bíblica, citando a versão NVI. 
-Nunca ofereça aconselhamento médico ou jurídico.`
-        },
-        {
-          role: 'assistant',
-          content: `Diretrizes internas (não revele ao usuário): 
-- Sempre siga exatamente o formato solicitado. 
-- Evite versículos repetidos nos últimos 30 minutos. 
-- Cada parágrafo ≤ 120 palavras. 
-- Seja empático e centrado em Jesus.`
-        },
-        // Few-shot 1
-        {
-          role: 'user',
-          content: 'Estou ansioso com uma decisão importante no trabalho.'
-        },
-        {
-          role: 'assistant',
-          content: `Versículo: "Entregue o seu caminho ao Senhor; confie nele, e ele agirá." (Salmos 37:5)
+    let responseText = '';
+    let verse = '';
+    const MAX_RETRIES = 3;
 
-Contexto: O salmo 37, atribuído a Davi, encoraja os fiéis a confiarem na justiça de Deus em meio às pressões da vida. Ele contrasta a prosperidade aparente dos ímpios com a recompensa duradoura dos que esperam no Senhor.
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      const completion = await openai.chat.completions.create({
+        model: MODEL_ID,
+        temperature: 0.7,
+        max_tokens: 600,
+        messages: [
+          { role: 'system', content: 'Você é um conselheiro pastoral evangélico…' },
+          { role: 'assistant', content: 'Diretrizes internas: siga formato, parágrafos ≤120 palavras.' },
+          { role: 'user', content: makePrompt(blacklist) },
+        ],
+      });
 
-Aplicação: Quando você se vê diante de escolhas que geram ansiedade, lembrar que o controle final pertence a Deus traz paz. Entregar-lhe a decisão — em oração e fé — alinha seu coração à vontade divina e liberta você da paralisia do medo.`
-        },
-        // Few-shot 2
-        {
-          role: 'user',
-          content: 'Perdi alguém querido e me sinto sem chão.'
-        },
-        {
-          role: 'assistant',
-          content: `Versículo: "Bem-aventurados os que choram, pois serão consolados." (Mateus 5:4)
+      responseText = completion.choices?.[0]?.message?.content?.trim() || '';
+      const match = responseText.match(/Versículo:\s*".*"\s*\(([^)]+)\)/i);
+      verse = match ? match[1].trim() : '';
 
-Contexto: No Sermão do Monte, Jesus descreve valores do Reino de Deus. Ele declara feliz quem lamenta, pois Deus mesmo prometeu consolo — antecipando o cuidado divino e a esperança da restauração futura.
+      if (!verse || blacklist.includes(verse)) {
+        // registra e tenta de novo
+        blacklist.push(verse || `attempt-${attempt}`);
+        continue;
+      }
+      break; // sucesso
+    }
 
-Aplicação: Seu luto não passa despercebido ao Senhor. Ele vê suas lágrimas e promete transformá-las em consolo. Permita-se chorar na presença de Deus; Nele, a saudade encontra abrigo e, aos poucos, o coração ferido descobre nova esperança.`
-        },
-        // Prompt real do usuário
-        { role: 'user', content: userPrompt }
-      ]
-    });
+    if (!verse) return jsonErr('Não foi possível obter um versículo novo.', 502);
 
-    const responseText = completion.choices?.[0]?.message?.content?.trim() || '';
+    // --- salva no “cache” para usos futuros ---
+    addVerse(verse);
+    // se tiver KV real: ctx.waitUntil(KV.put(verse, Date.now().toString()))
 
-    // ===== Extração segura =====
-    const verseMatch       = responseText.match(/Versículo:\s*(.+)/i);
-    const contextMatch     = responseText.match(/Contexto:\s*([\s\S]+?)Aplicação:/i);
-    const applicationMatch = responseText.match(/Aplicação:\s*(.+)/i);
+    // --- parseia contexto / aplicação ---
+    const context = (/Contexto:\s*([\s\S]+?)Aplicação:/i.exec(responseText)?.[1] || '').trim();
+    const application = (/Aplicação:\s*([\s\S]+)$/i.exec(responseText)?.[1] || '').trim();
 
-    const verse       = verseMatch      ? verseMatch[1].trim()       : '⚠️ Versículo não encontrado.';
-    const context     = contextMatch    ? contextMatch[1].trim()     : '⚠️ Contexto não encontrado.';
-    const application = applicationMatch? applicationMatch[1].trim() : '⚠️ Aplicação não encontrada.';
-
-    // ===== Resposta formatada =====
-    return new Response(
-      JSON.stringify({ verse, context, application }),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+    return Response.json({ verse, context, application });
 
   } catch (err) {
-    console.error('[GodCares] Erro crítico ao gerar Palavra:', err);
-    return new Response(
-      JSON.stringify({ error: '⚠️ Não foi possível gerar a Palavra. Tente novamente em alguns minutos.' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    console.error('[GodCares] Erro:', err);
+    return jsonErr('⚠️ Não foi possível gerar a Palavra. Tente novamente em alguns minutos.', 500);
   }
 };
+
+// util
+function jsonErr(msg: string, status = 400) {
+  return new Response(JSON.stringify({ error: msg }), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
