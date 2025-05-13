@@ -1,29 +1,29 @@
-// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.5.0, 2025-05-13)
+// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.5.1, 2025-05-13)
 
 import OpenAI from 'openai';
 
 const API_KEY  = process.env.OPENAI_API_KEY  || '';
-const MODEL_ID = process.env.OPENAI_MODEL_ID || 'gpt-4o-2024-05-13';   // 4o (até 128 k)
+const MODEL_ID = process.env.OPENAI_MODEL_ID || 'gpt-4o-2024-05-13';  // suporta até 128 k
 
 if (!API_KEY) console.error('[GodCares] ⚠️ OPENAI_API_KEY não configurada.');
 
 const openai = new OpenAI({ apiKey: API_KEY });
 
-/* ───────── cache simples em memória ───────── */
+/* ─── cache simples em memória ─── */
 const KEEP_DAYS = 3;
 /** @type {Map<string, number>} */
-globalThis.recentVerses = globalThis.recentVerses || new Map();
+globalThis.recentRefs = globalThis.recentRefs || new Map();
 
 function purgeOld() {
-  const ttl = KEEP_DAYS * 86_400_000;         // ms em 3 dias
+  const ttl = KEEP_DAYS * 86_400_000;
   const now = Date.now();
-  for (const [ref, t] of globalThis.recentVerses)
-    if (now - t > ttl) globalThis.recentVerses.delete(ref);
+  for (const [ref, t] of globalThis.recentRefs)
+    if (now - t > ttl) globalThis.recentRefs.delete(ref);
 }
-function addRef(ref)     { globalThis.recentVerses.set(ref, Date.now()); }
-function getBlacklist()  { purgeOld(); return [...globalThis.recentVerses.keys()]; }
+function addRef(ref)    { globalThis.recentRefs.set(ref, Date.now()); }
+function getBlacklist(){ purgeOld(); return [...globalThis.recentRefs.keys()]; }
 
-/* ───────────────── handler ─────────────────── */
+/* ─── handler ─── */
 export default async (req) => {
   try {
     const { entryText } = await req.json();
@@ -31,71 +31,63 @@ export default async (req) => {
 
     const blacklist = getBlacklist();
 
-    /* prompt gerado na hora */
     const makePrompt = (avoid = []) => `
 O usuário compartilhou: "${entryText}"
 
-TAREFA
-1. Escolha um trecho do Novo Testamento (1–3 versículos consecutivos) que ofereça acolhimento e orientação.
-2. Não use estes, pois apareceram recentemente: ${avoid.length ? avoid.join('; ') : '—'}.
-3. Depois escreva DOIS parágrafos:
-   • Contexto Bíblico  – ≤ 120 palavras  
-   • Aplicação Pessoal – ≤ 120 palavras
-4. Formato EXATO (não acrescente linhas extras):
+TAREFA:
+1. Selecione um trecho do Novo Testamento (1–3 versículos) que ofereça acolhimento e orientação.
+2. Não use estes, pois foram usados recentemente: ${avoid.length ? avoid.join('; ') : '—'}.
 
-Trecho: "Texto completo do trecho"          ← mantenha as aspas
-Referência: Livro Cap:Vers-[Vers]            ← ex.: Mateus 11:28-30
+Escreva dois parágrafos:
+• Contexto Bíblico (≤120 palavras)  
+• Aplicação Pessoal (≤120 palavras)  
 
-Contexto: …
-
-Aplicação: …
+**RETORNE EXATAMENTE ESTE JSON** (sem texto adicional):
+{
+  "reference": "Livro Cap:Vers[-Vers]",
+  "passage": "Texto completo do trecho",
+  "context": "…",
+  "application": "…"
+}
 `.trim();
 
     const MAX_RETRIES = 3;
-    let reference = '';
-    let responseText = '';
-
+    let payload;
     for (let i = 0; i < MAX_RETRIES; i++) {
-      const { choices } = await openai.chat.completions.create({
+      const comp = await openai.chat.completions.create({
         model: MODEL_ID,
         temperature: 0.7,
         max_tokens: 850,
+        response_format: { type: 'json_object' },
         messages: [
-          { role: 'system',    content: 'Você é um conselheiro pastoral evangélico, acolhedor e bíblico.' },
-          { role: 'assistant', content: 'Siga exatamente o formato; evite tom acadêmico.' },
-          { role: 'user',      content: makePrompt(blacklist) },
-        ],
+          {
+            role: 'system',
+            content: 'Você é um conselheiro pastoral evangélico, acolhedor e bíblico.'
+          },
+          {
+            role: 'user',
+            content: makePrompt(blacklist)
+          }
+        ]
       });
 
-      responseText = choices?.[0]?.message?.content?.trim() || '';
-
-      /* 1ª tentativa: novo formato "Referência:" */
-      let m = responseText.match(/Referência:\s*([^\n]+)/i);
-      /* 2ª tentativa: formato antigo em parênteses */
-      if (!m) m = responseText.match(/Trecho:\s*".*?"\s*\(([^)]+)\)/i);
-
-      reference = m ? m[1].replace(/\s+/g, '') : '';
-
-      if (!reference || blacklist.includes(reference)) {
-        blacklist.push(reference || `retry-${i}`);
-        continue;        // tenta de novo
+      // conteúdo já vem como objeto JSON
+      payload = comp.choices?.[0]?.message?.content;
+      const { reference } = payload || {};
+      if (reference && !blacklist.includes(reference)) {
+        addRef(reference);
+        break;
       }
-      break;             // ok
+      // tentar de novo se repetido ou ausente
+      blacklist.push((payload?.reference) || `retry-${i}`);
+      payload = null;
     }
 
-    if (!reference)
-      return jsonErr('Não encontrei um trecho inédito.', 502);
+    if (!payload?.reference) {
+      return jsonErr('Não foi possível obter um trecho novo.', 502);
+    }
 
-    addRef(reference);
-
-    const context =
-      (/Contexto:\s*([\s\S]+?)Aplicação:/i.exec(responseText)?.[1] || '')
-        .trim();
-    const application =
-      (/Aplicação:\s*([\s\S]+)$/i.exec(responseText)?.[1] || '')
-        .trim();
-
-    return Response.json({ reference, context, application });
+    return Response.json(payload);
 
   } catch (err) {
     console.error('[GodCares] Erro:', err);
@@ -103,7 +95,7 @@ Aplicação: …
   }
 };
 
-/* ───────── util ───────── */
+/* ─── util ─── */
 function jsonErr(msg, status = 400) {
   return new Response(JSON.stringify({ error: msg }), {
     status,
