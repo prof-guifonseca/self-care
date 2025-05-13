@@ -57,7 +57,7 @@ Escreva dois parágrafos:
       const comp = await openai.chat.completions.create({
         model: MODEL_ID,
         temperature: 0.7,
-        max_tokens: 850,
+        max_tokens: 500,
         response_format: { type: 'json_object' },
         messages: [
           {
