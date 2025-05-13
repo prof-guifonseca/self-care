@@ -41,6 +41,6 @@
     "serve": "^14.2.4"
   },
   "dependencies": {
-    "openai": "^4.96.0"
+    "openai": "^4.98.0"
   }
 }
