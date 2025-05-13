@@ -1,9 +1,10 @@
-// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.4.0, 2025-05-13)
+// GodCares ✝️ — Geração de Palavra e Reflexão Profunda (v2.4.1, 2025-05-13)
 
 import OpenAI from 'openai';
 
 const API_KEY  = process.env.OPENAI_API_KEY  || '';
-const MODEL_ID = process.env.OPENAI_MODEL_ID || 'gpt-4o-128k-2024-05-13'; // ⬅️ 4o 128k
+// ID oficial do GPT-4o (128 k suportado)
+const MODEL_ID = process.env.OPENAI_MODEL_ID || 'gpt-4o-2024-05-13';
 
 if (!API_KEY) console.error('[GodCares] ⚠️ OPENAI_API_KEY não configurada.');
 
@@ -31,12 +32,12 @@ export default async (req) => {
 
     const blacklist = getBlacklist();
 
-    /* ---------- prompt dinâmica ---------- */
+    /** cria prompt com lista de trechos a evitar */
     const makePrompt = (avoid = []) => `
 O usuário compartilhou: "${entryText}"
 
 TAREFA
-1. Escolha um trecho bíblico do Novo Testamento, 1 a 3 versículos consecutivos a depender do contexto apresentado, que ofereça acolhimento e orientação.
+1. Escolha um trecho do Novo Testamento, 1 a 3 versículos consecutivos, que ofereça acolhimento e orientação.
 2. Não use nenhum destes, pois foram usados recentemente: ${avoid.length ? avoid.join('; ') : '—'}.
 3. Depois escreva DOIS parágrafos:
    • Contexto Bíblico  – ≤ 120 palavras  
@@ -58,7 +59,7 @@ Aplicação: …
       const { choices } = await openai.chat.completions.create({
         model: MODEL_ID,
         temperature: 0.7,
-        max_tokens: 650,
+        max_tokens: 850,          // ajuste conforme sua necessidade/custo
         messages: [
           { role: 'system',    content: 'Você é um conselheiro pastoral evangélico, acolhedor e bíblico.' },
           { role: 'assistant', content: 'Siga o formato solicitado; nada de tom acadêmico.' },
@@ -68,7 +69,7 @@ Aplicação: …
 
       responseText = choices?.[0]?.message?.content?.trim() || '';
 
-      // Ex.: (Mateus11:28-30) ou (Mt11:28)
+      // capturar referência em parênteses
       const m = responseText.match(/Trecho:\s*".*"\s*\(([^)]+)\)/i);
       passage = m ? m[1].replace(/\s+/g, '') : '';
 
@@ -94,7 +95,7 @@ Aplicação: …
   }
 };
 
-/* util */
+/* ---------- util ---------- */
 function jsonErr(msg, status = 400) {
   return new Response(JSON.stringify({ error: msg }), {
     status,
