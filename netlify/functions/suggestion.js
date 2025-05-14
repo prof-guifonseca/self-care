@@ -1,5 +1,5 @@
 // netlify/functions/suggestion.js
-// GodCares ✝️ — Palavra e Reflexão Profunda com Bible-API (v2.9.0, 2025-05-13)
+// GodCares ✝️ — Palavra e Reflexão Profunda com Bible-API (v2.9.1, 2025-05-14)
 
 import OpenAI from 'openai';
 
@@ -24,8 +24,15 @@ async function fetchPassage(ref) {
 
 export default async function handler(event, context) {
   try {
-    // ← ← ← CORREÇÃO AQUI: parse do body, não event.json()
-    const { entryText } = JSON.parse(event.body);
+    // ── aqui detectamos se é Request (edge) ou Lambda event.body ──
+    let body;
+    if (typeof event.json === 'function') {
+      body = await event.json();
+    } else {
+      body = JSON.parse(event.body || '{}');
+    }
+    const { entryText } = body;
+
     if (!entryText?.trim()) {
       return new Response(
         JSON.stringify({ error: 'Digite algo para receber a Palavra.' }),
@@ -40,16 +47,13 @@ export default async function handler(event, context) {
       max_tokens:  30,
       messages: [
         { role: 'system', content: 'Você é um conselheiro pastoral evangélico.' },
-        {
-          role: 'user',
-          content: `
+        { role: 'user', content: `
 O usuário compartilhou: "${entryText}"
 
 TAREFA:
 - Escolha apenas a referência de 1–3 versículos do Novo Testamento (ex: Filipenses 4:4).
 - Responda SOMENTE com essa referência.
-`.trim()
-        }
+`.trim() }
       ]
     });
 
@@ -66,9 +70,7 @@ TAREFA:
       max_tokens:  600,
       messages: [
         { role: 'system', content: 'Você é um conselheiro pastoral evangélico, acolhedor e bíblico.' },
-        {
-          role: 'user',
-          content: `
+        { role: 'user', content: `
 Aqui está o texto (NVI):
 "${passage}"
 
@@ -76,22 +78,20 @@ TAREFA:
 1. Contexto Bíblico (até 120 palavras)
 2. Aplicação Pessoal (até 120 palavras)
 
-**RESPONDA EM JSON** (somente o objeto):
+**RESPONDA EM JSON** (apenas o objeto):
 {
   "reference": "${reference}",
   "passage":   "${passage.replace(/\n/g,' ')}",
   "context":   "…",
   "application":"…"
 }
-`.trim()
-        }
+`.trim() }
       ]
     });
 
     const json = JSON.parse(reflectRes.choices[0].message.content);
     return new Response(JSON.stringify(json), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      status: 200, headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (err) {
