@@ -22,12 +22,13 @@
         body: JSON.stringify({ entryText: text })
       });
       if (!res.ok) throw new Error();
-      return await res.json(); // { reference, passage, context, application }
+      // agora esperamos { reference, passage, context, application }
+      return await res.json();
     } catch (err) {
       console.error('[GodCares] Erro ao buscar Palavra:', err);
       return {
         reference: '',
-        passage:   '⚠️ Erro ao gerar Palavra.',
+        passage: '⚠️ Erro ao gerar Palavra.',
         context:   '',
         application:''
       };
@@ -42,7 +43,10 @@
 
   function renderHistory() {
     const h = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    if (!h.length) return historySection.classList.add('hidden');
+    if (!h.length) {
+      historySection.classList.add('hidden');
+      return;
+    }
     historySection.classList.remove('hidden');
     historyList.innerHTML = '';
     h.forEach(({ ref, time }) => {
@@ -63,7 +67,7 @@
 
     const { reference, passage, context, application } = await fetchWord(text);
 
-    // mostra a referência (ou, se quiser, o texto do trecho, use passage)
+    // mostre a referência; se quiser texto em vez de referência, troque para passage
     verseEl.textContent       = reference ? `📖 ${reference}` : `📖 ${passage}`;
     contextEl.textContent     = context;
     applicationEl.textContent = application;
